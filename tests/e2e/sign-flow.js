@@ -1,0 +1,11 @@
+const { chromium } = require('playwright'); const BASE='http://localhost:3000', OUT=process.argv[2];
+(async()=>{const b=await chromium.launch();const c=await b.newContext({viewport:{width:1440,height:900}});const p=await c.newPage();
+await p.goto(BASE+'/investor/login');await p.waitForLoadState('networkidle');
+await p.fill('input[name=email]','sam.sample@example.test');await p.fill('input[name=password]','Demo-Passw0rd!Change');await p.click('button[type=submit]');await p.waitForURL('**/investments');
+await p.goto(BASE+'/investor/documents/signatures/31733');await p.waitForSelector('button:has-text("Agree")');
+await p.screenshot({path:OUT+'/e10-consent-w9-entity.png'});
+await p.click('button:has-text("Agree")');await p.waitForSelector('input[name=signature]');await p.screenshot({path:OUT+'/e11-signing-step-stub.png'});
+await p.fill('input[name=signature]','Sam Sample');await p.check('input[name=confirm]');await p.click('button:has-text("Sign")');await p.waitForSelector('text=View executed copy');
+await p.screenshot({path:OUT+'/e12-signed-confirmation.png'});
+await p.goto(BASE+'/investor/documents/signatures');await p.waitForLoadState('networkidle');await p.screenshot({path:OUT+'/e13-no-pending-left.png'});
+await b.close();})();

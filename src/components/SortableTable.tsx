@@ -16,7 +16,11 @@ export default function SortableTable({ columns, rows, defaultSort, empty, testI
       return (typeof x === "number" && typeof y === "number" ? x - y : String(x).localeCompare(String(y), undefined, { numeric: true })) * m;
     });
   }, [rows, sort]);
-  const arrow = (c: Col) => !c.sortable ? null : sort?.key === c.key ? <span aria-hidden className="ml-1 text-xs">{sort.dir === "asc" ? "▲" : "▼"}</span> : <span aria-hidden className="ml-1 text-xs muted">↕</span>;
+  // Solid triangles like the original: stacked pair when unsorted, single when sorted.
+  const arrow = (c: Col) => !c.sortable ? null : (
+    <svg aria-hidden width="10" height="14" viewBox="0 0 10 14" className="inline-block ml-1.5 -mt-0.5" fill="currentColor">
+      {sort?.key === c.key ? (sort.dir === "asc" ? <path d="M0 9h10L5 3z" /> : <path d="M0 5h10L5 11z" />) : <><path d="M0 5.500h10L5 .5z" /><path d="M0 8.500h10L5 13.500z" /></>}
+    </svg>);
   const al = (c: Col) => (c.align === "right" ? "text-right" : c.align === "center" ? "text-center" : "text-left");
   return (
     <div className="overflow-x-auto" data-testid={testId}>
