@@ -15,7 +15,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
     <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4 py-10">
       {/* NO sign-up / create-account link anywhere: access is invite-only (CLONE-PROMPT §18) */}
       <div className="w-full max-w-[460px] bg-white border border-[#dee2e6] rounded-lg p-8 shadow-sm text-[#212529]">
-        <div className="flex justify-center"><Logo height={56} /></div>
+        <div className="flex justify-center text-navy"><Logo height={56} /></div>
         <h1 className="text-[26px] font-bold text-center mt-6">Log in to your Investor Portal</h1>
         <LoginForm returnTo={ret} />
         <div className="mt-6"><a href={KNOWLEDGE_BASE_URL} target="_blank" rel="noreferrer">Knowledge Base ↗</a></div>

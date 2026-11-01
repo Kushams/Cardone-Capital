@@ -17,7 +17,7 @@ export default async function Invest({ params, searchParams }: { params: Promise
   return (
     <div>
       <p className="text-sm mb-2"><Link href={`/investor/opportunities/${o.portalId}`}>{o.name}</Link> › Invest</p>
-      <h1 className="text-[30px] md:text-[38px] font-bold text-[#343a40] mb-6">Invest in {o.name}</h1>
+      <h1 className="text-[30px] md:text-[38px] font-bold text-[var(--heading)] mb-6">Invest in {o.name}</h1>
       <InvestForm offeringId={o.portalId} offeringName={o.name} minimum={o.minimumInvestment ?? "$200,000"} prefill={prefill}
         entities={getEntities(u.clientId).map((e) => ({ id: e.id, name: e.name }))} cancelHref={`/investor/opportunities/${o.portalId}`} />
     </div>

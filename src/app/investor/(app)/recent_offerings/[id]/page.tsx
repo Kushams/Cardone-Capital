@@ -30,7 +30,7 @@ export default async function RecentOffering({ params }: { params: Promise<{ id:
   const perf = perfRows(o.performance);
   return (
     <div className="max-w-[1000px]">
-      <h1 className="text-[32px] md:text-[40px] font-bold text-[#343a40] mb-6">{o.name}</h1>
+      <h1 className="text-[32px] md:text-[40px] font-bold text-[var(--heading)] mb-6">{o.name}</h1>
       {/* Template: nothing else exists on these pages — no buttons, terms, documents, or footer. Fund 32 is genuinely H1-only. */}
       {o.description && (
         <section className="mb-6"><h4 className="text-xl font-bold mb-2">Investment Description</h4>

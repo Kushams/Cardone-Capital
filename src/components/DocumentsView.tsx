@@ -88,7 +88,7 @@ export default function DocumentsView({ initialTab, all, funds, sigs, entities, 
   return (
     <div className="max-w-[1180px]">
       <div className="flex items-start justify-between gap-4 mb-6">
-        <h1 className="text-[34px] md:text-[40px] leading-tight font-bold text-[#343a40]">Documents</h1>
+        <h1 className="text-[34px] md:text-[40px] leading-tight font-bold text-[var(--heading)]">Documents</h1>
         <button onClick={() => setUpload(true)} className="btn btn-outline !py-2 shrink-0">Upload Document</button>
       </div>
       {note && <p role="status" className="card p-3 mb-4 text-sm">{note}</p>}

@@ -19,7 +19,7 @@ export default async function FundPage({ params }: { params: Promise<{ id: strin
   return (
     <div className="max-w-[1180px]">
       <p className="text-sm mb-2"><Link href="/investor/documents">Documents</Link> › All</p>
-      <h1 className="text-[32px] md:text-[40px] leading-tight font-bold text-[#343a40] mb-6">{fundNames.get(Number(id))}</h1>
+      <h1 className="text-[32px] md:text-[40px] leading-tight font-bold text-[var(--heading)] mb-6">{fundNames.get(Number(id))}</h1>
       <FundDocuments rows={rows} entities={getEntities(u.clientId).map((e) => e.name)} years={years} />
     </div>
   );

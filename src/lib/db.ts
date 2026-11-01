@@ -152,6 +152,14 @@ CREATE TABLE IF NOT EXISTS signature_requests (
   signature_page_id INTEGER NOT NULL UNIQUE
 );
 
+CREATE TABLE IF NOT EXISTS tax_forms (
+  id INTEGER PRIMARY KEY, client_id INTEGER NOT NULL REFERENCES clients(id), investing_entity_id INTEGER REFERENCES investing_entities(id),
+  name TEXT NOT NULL, investment TEXT, tax_year INTEGER, shared_date TEXT NOT NULL, file_path TEXT
+);
+CREATE TABLE IF NOT EXISTS transactions (
+  id INTEGER PRIMARY KEY, client_id INTEGER NOT NULL REFERENCES clients(id), investing_entity_id INTEGER REFERENCES investing_entities(id),
+  tx_date TEXT NOT NULL, kind TEXT NOT NULL, description TEXT, investment TEXT, amount_cents INTEGER NOT NULL
+);
 CREATE INDEX IF NOT EXISTS idx_entities_client ON investing_entities(client_id);
 CREATE INDEX IF NOT EXISTS idx_instances_client ON document_instances(client_id, status);
 CREATE INDEX IF NOT EXISTS idx_sigreq_entity ON signature_requests(investing_entity_id, status);

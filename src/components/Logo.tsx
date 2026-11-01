@@ -1,6 +1,6 @@
 /** Recreation of the Cardone Capital lockup (dark-navy stylised "C", CARDONE bold caps, CAPITAL letter-spaced beneath).
  *  NOTE: production artwork was not in the kit — drop the official SVG into this slot at the same size. */
-export default function Logo({ height = 44, color = "#002c4f" }: { height?: number; color?: string }) {
+export default function Logo({ height = 44, color = "currentColor" }: { height?: number; color?: string }) {
   const w = height * 4.1;
   return (
     <svg role="img" aria-label="Cardone Capital" width={w} height={height} viewBox="0 0 205 50" fill={color}>

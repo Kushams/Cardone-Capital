@@ -31,7 +31,7 @@ export default async function SignPage({ params, searchParams }: { params: Promi
 
   return (
     <div className="max-w-[900px]">
-      <h1 className="text-[32px] md:text-[40px] font-bold text-[#343a40] mb-6">Please Review and Sign</h1>
+      <h1 className="text-[32px] md:text-[40px] font-bold text-[var(--heading)] mb-6">Please Review and Sign</h1>
 
       {r.status === "SIGNED" ? (
         <Card>

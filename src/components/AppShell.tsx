@@ -62,7 +62,7 @@ export default function AppShell({ userName, newBadge, children }: { userName: s
       <header className="bg-[var(--header)] shadow-[0_1px_6px_rgba(0,0,0,.12)] relative z-30">
         {/* desktop */}
         <div className="hidden md:flex items-center justify-between h-[72px] px-6">
-          <Link href="/investor/investments" aria-label="Dashboard"><Logo height={44} /></Link>
+          <Link href="/investor/investments" aria-label="Dashboard" className="text-navy dark:text-white"><Logo height={44} /></Link>
           <div className="flex items-center gap-8">
             <a href={KNOWLEDGE_BASE_URL} target="_blank" rel="noreferrer" className="text-brand">Knowledge Base<ExtIcon /></a>
             <UserMenu name={userName} />

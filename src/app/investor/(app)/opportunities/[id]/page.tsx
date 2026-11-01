@@ -39,7 +39,7 @@ export default async function OfferingDetail({ params }: { params: Promise<{ id:
     <div className="max-w-[1180px]">
       <div className="flex items-start justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-[32px] md:text-[40px] leading-tight font-bold text-[#343a40]">{o.name}</h1>
+          <h1 className="text-[32px] md:text-[40px] leading-tight font-bold text-[var(--heading)]">{o.name}</h1>
           <p className="muted mt-1">Prepared for {client?.full_name ?? u.email}</p>
         </div>
         {inProgress ? <Link href={investHref} className="btn btn-secondary shrink-0">Invest Again</Link>

@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @import "@fontsource-variable/nunito-sans";
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 /* Frozen design tokens (CLONE-PROMPT Section 19) */
 @theme {
@@ -25,6 +26,7 @@
   --btn2: #e9ecef;
   --btn2-text: #212529;
   --header: #ffffff;
+  --heading: #343a40;
 }
 html[data-theme="dark"] {
   --bg: #14181d;
@@ -35,6 +37,7 @@ html[data-theme="dark"] {
   --btn2: #333b44;
   --btn2-text: #e8ecef;
   --header: #1a2027;
+  --heading: #f1f3f5;
 }
 
 @layer base {
@@ -57,6 +60,7 @@ th { font-weight: 700; text-align: left; }
 .badge-yellow { background: #fcc43e; color: #212529; border-radius: 9999px; font-weight: 700; font-size: 14px; min-width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; padding: 0 6px; }
 .input { width: 100%; border: 1px solid #ced4da; border-radius: 4px; padding: 8px 12px; background: var(--card); color: var(--text); font-size: 16px; }
 select.input { appearance: none; padding-right: 38px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='8' viewBox='0 0 14 8'%3E%3Cpath d='M0 0h14L7 8z' fill='%23212529'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; }
+html[data-theme="dark"] select.input { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='8' viewBox='0 0 14 8'%3E%3Cpath d='M0 0h14L7 8z' fill='%23e8ecef'/%3E%3C/svg%3E"); }
 .input:focus { outline: 2px solid #0175d8; outline-offset: -1px; }
 .input[readonly], .input:disabled { background: var(--btn2); color: var(--muted); }
 .label { color: var(--muted); font-size: 14px; margin-bottom: 4px; display: block; }
