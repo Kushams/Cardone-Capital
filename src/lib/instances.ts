@@ -7,7 +7,7 @@ export function createSignatureDocuments(d: DatabaseSync, commitmentId: number, 
   const c = d.prepare(`SELECT c.id, c.offering_id, c.investing_entity_id eid, e.client_id cid FROM commitments c JOIN investing_entities e ON e.id = c.investing_entity_id WHERE c.id = ?`).get(commitmentId) as any;
   if (!c) throw new Error("commitment not found");
   const booklet = d.prepare("SELECT id FROM document_templates WHERE doc_type='SUBSCRIPTION_BOOKLET' AND offering_id = ?").get(c.offering_id) as any;
-  const w9 = d.prepare("SELECT id FROM document_templates WHERE doc_type='W9' AND offering_id IS NULL").get() as any;
+  const w9 = d.prepare("SELECT id FROM document_templates WHERE doc_type='W9' ORDER BY id LIMIT 1").get() as any;
   if (!booklet || !w9) throw new Error("missing booklet/W-9 template for offering " + c.offering_id);
   const nextPage = () => ((d.prepare("SELECT MAX(signature_page_id) m FROM signature_requests").get() as any).m ?? 31900) + 1;
   const out: number[] = [];

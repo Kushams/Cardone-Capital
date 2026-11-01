@@ -6,6 +6,7 @@ import { openDb } from "../src/lib/db";
 import { encryptSecret, hashPassword } from "../src/lib/crypto";
 import { ALL_OFFERINGS, DEMO } from "../src/data/seed-data";
 import { createSignatureDocuments } from "../src/lib/instances";
+import { generateInstance } from "../src/lib/personalise";
 import { classify, isoFromMDY, offeringInternalId } from "../src/lib/catalog";
 
 const root = process.cwd();
@@ -13,6 +14,7 @@ const dbPath = process.env.DB_PATH ?? path.join(root, "storage", "db", "portal.s
 for (const ext of ["", "-wal", "-shm"]) if (existsSync(dbPath + ext)) rmSync(dbPath + ext);
 const db = openDb(dbPath);
 
+async function main() {
 // ---- offerings ----
 const insOff = db.prepare("INSERT INTO offerings (id, portal_id, kind, name, slug, sort_order, data) VALUES (?,?,?,?,?,?,?)");
 for (const o of ALL_OFFERINGS) insOff.run(offeringInternalId(o), o.portalId, o.kind, o.name, o.slug, o.sortOrder, JSON.stringify(o));
@@ -44,8 +46,8 @@ for (const d of manifest.documents) {
     d.year ?? null, isoFromMDY(d.shared), JSON.stringify(d.appearsIn));
   count++;
 }
-// Fund 32's W-9 is the fund-independent blank master used to build every W-9 packet
-db.prepare("UPDATE document_templates SET offering_id = NULL, field_map = ? WHERE doc_type = 'W9'")
+// Fund 32's W-9 stays listed under Fund 32 (portal behaviour) AND is the blank master used to build every W-9 packet for any fund.
+db.prepare("UPDATE document_templates SET field_map = ? WHERE doc_type = 'W9'")
   .run(JSON.stringify({ fills: [], appendPage: "summary" }));
 
 // ---- fictional demo clients (login works; already onboarded) ----
@@ -70,4 +72,7 @@ for (const c of DEMO.clients) {
 // an invited-but-not-onboarded email (allowlist demo)
 db.prepare("INSERT INTO authorized_emails (email, invited_by, status) VALUES (?, 'seed', 'INVITED')").run(DEMO.invitedNotOnboarded);
 
+for (const r of db.prepare("SELECT id FROM document_instances").all() as { id: number }[]) await generateInstance(db, r.id);
 console.log(`Seeded: ${ALL_OFFERINGS.length} offerings, ${count} document templates, ${DEMO.clients.length} fictional demo clients -> ${dbPath}`);
+}
+main();

@@ -9,7 +9,7 @@ export default function Collapsible({ title, headingLevel = 2, action, defaultOp
     <section className="card p-5 md:p-6" id={id}>
       <div className="flex items-center justify-between gap-3">
         <button className="flex items-center gap-3 text-left cursor-pointer" aria-expanded={open} onClick={() => setOpen(!open)}>
-          <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden className={`transition-transform ${open ? "rotate-180" : ""}`}><path d="M2 5l6 6 6-6" fill="none" stroke="currentColor" strokeWidth="2.200" /></svg>
+          <svg width="14" height="9" viewBox="0 0 14 9" aria-hidden className={`transition-transform text-[#6c757d] ${open ? "" : "-rotate-90"}`}><path d="M0 0h14L7 9z" fill="currentColor" /></svg>
           <H className="text-[22px] md:text-[26px] font-bold">{title}</H>
         </button>
         {action}

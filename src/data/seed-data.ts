@@ -180,3 +180,14 @@ export const DEMO = {
 
 /** Strings that must NEVER appear in any master template or generated demo document (Section 17 §6 denylist). */
 export const SAMPLE_INVESTOR_DENYLIST = ["puza", "tara", "kevin", "ryan tara", "kevin puza", "puza, llc"];
+
+/** Documents → Investment tab previews (3 rows per fund, in the portal's displayed order) — preserved as observed. */
+export const DOC_PREVIEW: Record<number, string[]> = {
+  81: ["Cardone Equity Fund 29 - PPM (corresponds to 2nd Amended & Restated OA) - FINAL - 07-22-26.pdf", "2026-04-17-10X-NAPLES-IM-V7.pdf", "CEF 29 Wire Instructions.pdf"],
+  86: ["Cardone Equity Fund 30 (Class A) - Subscription Booklet (July 2026) - FINAL - 07-08-26.pdf", "Cardone Equity Fund 30 - Operating Agreement - FINAL - 07-08-26.pdf", "CEF 30 - Wire Instructions.pdf"],
+  87: ["Cardone Equity Fund 31 - PPM - FINAL - August 2026.pdf", "Cardone Equity Fund 31 Class A_B_D) - Subscription Booklet (August 2026) - FINAL - August 2026.pdf", "Cardone Equity Fund 31 - Operating Agreement - FINAL - August 2026.pdf"],
+  88: ["Cardone Equity Fund 32 (Class A) - Subscription Booklet (Sept 2026) - FINAL - 09-01-26.pdf", "Cardone Equity Fund 32 - Operating Agreement - FINAL - 09-01-26.pdf", "Cardone Equity Fund 32 - PPM - FINAL - 09-01-26.pdf"],
+};
+/** The unnamed first column shows a blue dot on 7 of 19 rows (all Fund 32 rows, Fund 31 Wire Instructions + Operating Agreement). Unlabelled, as in the original. */
+export const dotRule = (offeringPortalId: number | null, docType: string) =>
+  offeringPortalId === 88 || (offeringPortalId === 87 && (docType === "WIRE_INSTRUCTIONS" || docType === "OPERATING_AGREEMENT"));
