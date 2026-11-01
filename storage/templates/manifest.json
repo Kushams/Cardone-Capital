@@ -1,0 +1,319 @@
+{
+  "documents": [
+    {
+      "folder": "fund-32",
+      "fileName": "UPDATED W-9 Fund 32.pdf",
+      "investment": "Cardone Equity Fund 32, LLC",
+      "type": "Agreements",
+      "year": 2026,
+      "shared": "09/08/26",
+      "path": "documents/fund-32/UPDATED W-9 Fund 32.pdf",
+      "received": true,
+      "appearsIn": [
+        "all-documents",
+        "by-investment:cardone-equity-fund-32-llc",
+        "offering-page:fund-32-opportunities-88"
+      ]
+    },
+    {
+      "folder": "fund-32",
+      "fileName": "CEF 32 - Wire Instructions.pdf",
+      "investment": "Cardone Equity Fund 32, LLC",
+      "type": "Agreements",
+      "year": 2026,
+      "shared": "09/08/26",
+      "path": "documents/fund-32/CEF 32 - Wire Instructions.pdf",
+      "received": true,
+      "appearsIn": [
+        "all-documents",
+        "by-investment:cardone-equity-fund-32-llc",
+        "offering-page:fund-32-opportunities-88"
+      ]
+    },
+    {
+      "folder": "fund-32",
+      "fileName": "Cardone Equity Fund 32 (Class A) - Subscription Booklet (Sept 2026) - FINAL - 09-01-26.pdf",
+      "investment": "Cardone Equity Fund 32, LLC",
+      "type": "Agreements",
+      "year": 2026,
+      "shared": "09/04/26",
+      "path": "documents/fund-32/Cardone Equity Fund 32 (Class A) - Subscription Booklet (Sept 2026) - FINAL - 09-01-26.pdf",
+      "received": true,
+      "appearsIn": [
+        "all-documents",
+        "by-investment:cardone-equity-fund-32-llc",
+        "offering-page:fund-32-opportunities-88"
+      ]
+    },
+    {
+      "folder": "fund-32",
+      "fileName": "Cardone Equity Fund 32 - Operating Agreement - FINAL - 09-01-26.pdf",
+      "investment": "Cardone Equity Fund 32, LLC",
+      "type": "Agreements",
+      "year": 2026,
+      "shared": "09/04/26",
+      "path": "documents/fund-32/Cardone Equity Fund 32 - Operating Agreement - FINAL - 09-01-26.pdf",
+      "received": true,
+      "appearsIn": [
+        "all-documents",
+        "by-investment:cardone-equity-fund-32-llc"
+      ]
+    },
+    {
+      "folder": "fund-32",
+      "fileName": "Cardone Equity Fund 32 - PPM - FINAL - 09-01-26.pdf",
+      "investment": "Cardone Equity Fund 32, LLC",
+      "type": "Agreements",
+      "year": 2026,
+      "shared": "09/04/26",
+      "path": "documents/fund-32/Cardone Equity Fund 32 - PPM - FINAL - 09-01-26.pdf",
+      "received": true,
+      "appearsIn": [
+        "all-documents",
+        "by-investment:cardone-equity-fund-32-llc",
+        "offering-page:fund-32-opportunities-88"
+      ]
+    },
+    {
+      "folder": "fund-31",
+      "fileName": "CEF 31 - Wire Instructions .pdf",
+      "investment": "Cardone Equity Fund 31, LLC",
+      "type": "Agreements",
+      "year": 2026,
+      "shared": "08/11/26",
+      "path": "documents/fund-31/CEF 31 - Wire Instructions .pdf",
+      "received": true,
+      "appearsIn": [
+        "all-documents",
+        "by-investment:cardone-equity-fund-31-llc",
+        "offering-page:fund-31-opportunities-87"
+      ]
+    },
+    {
+      "folder": "fund-31",
+      "fileName": "Cardone Equity Fund 31 - PPM - FINAL - August 2026.pdf",
+      "investment": "Cardone Equity Fund 31, LLC",
+      "type": "Agreements",
+      "year": 2026,
+      "shared": "08/07/26",
+      "path": "documents/fund-31/Cardone Equity Fund 31 - PPM - FINAL - August 2026.pdf",
+      "received": true,
+      "appearsIn": [
+        "all-documents",
+        "by-investment:cardone-equity-fund-31-llc",
+        "offering-page:fund-31-opportunities-87"
+      ]
+    },
+    {
+      "folder": "fund-31",
+      "fileName": "Cardone Equity Fund 31 Class A_B_D) - Subscription Booklet (August 2026) - FINAL - August 2026.pdf",
+      "investment": "Cardone Equity Fund 31, LLC",
+      "type": "Agreements",
+      "year": 2026,
+      "shared": "08/07/26",
+      "path": "documents/fund-31/Cardone Equity Fund 31 Class A_B_D) - Subscription Booklet (August 2026) - FINAL - August 2026.pdf",
+      "received": true,
+      "appearsIn": [
+        "all-documents",
+        "by-investment:cardone-equity-fund-31-llc",
+        "offering-page:fund-31-opportunities-87"
+      ]
+    },
+    {
+      "folder": "fund-31",
+      "fileName": "Cardone Equity Fund 31 - Operating Agreement - FINAL - August 2026.pdf",
+      "investment": "Cardone Equity Fund 31, LLC",
+      "type": "Agreements",
+      "year": null,
+      "shared": "08/07/26",
+      "path": "documents/fund-31/Cardone Equity Fund 31 - Operating Agreement - FINAL - August 2026.pdf",
+      "received": true,
+      "appearsIn": [
+        "all-documents",
+        "by-investment:cardone-equity-fund-31-llc"
+      ]
+    },
+    {
+      "folder": "fund-29",
+      "fileName": "EXECUTED Cardone Equity Fund 29 - Operating Agreement - Second Amended & Restated - FINAL - 07-22-26",
+      "investment": "Cardone Equity Fund 29, LLC",
+      "type": "Agreements",
+      "year": 2026,
+      "shared": "07/30/26",
+      "path": "documents/fund-29/EXECUTED Cardone Equity Fund 29 - Operating Agreement - Second Amended & Restated - FINAL - 07-22-26 (1).pdf",
+      "received": true,
+      "appearsIn": [
+        "all-documents",
+        "by-investment:cardone-equity-fund-29-llc",
+        "offering-page:fund-29-opportunities-81"
+      ]
+    },
+    {
+      "folder": "fund-29",
+      "fileName": "10X-Naples-Investment-Memorandum-w/ Financials.pdf",
+      "investment": "Cardone Equity Fund 29, LLC",
+      "type": "Agreements",
+      "year": 2026,
+      "shared": "07/30/26",
+      "path": "documents/fund-29/10X-Naples-Investment-Memorandum-w-Financials.pdf",
+      "received": true,
+      "storedFileName": "10X-Naples-Investment-Memorandum-w-Financials.pdf",
+      "note": "User-supplied compressed copy (24MB, from ~29MB original), 91 pages.",
+      "appearsIn": [
+        "all-documents",
+        "by-investment:cardone-equity-fund-29-llc",
+        "offering-page:fund-29-opportunities-81"
+      ]
+    },
+    {
+      "folder": "fund-29",
+      "fileName": "Cardone Equity Fund 29 - Subscription Booklet - FINAL - 07-22-26.pdf",
+      "investment": "Cardone Equity Fund 29, LLC",
+      "type": "Agreements",
+      "year": 2026,
+      "shared": "07/23/26",
+      "path": "documents/fund-29/Cardone Equity Fund 29 - Subscription Booklet - FINAL - 07-22-26.pdf",
+      "received": true,
+      "appearsIn": [
+        "all-documents",
+        "by-investment:cardone-equity-fund-29-llc",
+        "offering-page:fund-29-opportunities-81"
+      ]
+    },
+    {
+      "folder": "fund-29",
+      "fileName": "Cardone Equity Fund 29 - PPM (corresponds to 2nd Amended & Restated OA) - FINAL - 07-22-26.pdf",
+      "investment": "Cardone Equity Fund 29, LLC",
+      "type": "Agreements",
+      "year": 2026,
+      "shared": "07/23/26",
+      "path": "documents/fund-29/Cardone Equity Fund 29 - PPM (corresponds to 2nd Amended & Restated OA) - FINAL - 07-22-26.pdf",
+      "received": true,
+      "appearsIn": [
+        "all-documents",
+        "by-investment:cardone-equity-fund-29-llc",
+        "offering-page:fund-29-opportunities-81"
+      ]
+    },
+    {
+      "folder": "fund-29",
+      "fileName": "2026-04-17-10X-NAPLES-IM-V7.pdf",
+      "investment": "Cardone Equity Fund 29, LLC",
+      "type": "Agreements",
+      "year": 2026,
+      "shared": "07/10/26",
+      "path": "documents/fund-29/2026-04-17-10X-NAPLES-IM-V7.pdf",
+      "received": true,
+      "appearsIn": [
+        "all-documents",
+        "by-investment:cardone-equity-fund-29-llc",
+        "offering-page:fund-29-opportunities-81"
+      ]
+    },
+    {
+      "folder": "fund-29",
+      "fileName": "CEF 29 Wire Instructions.pdf",
+      "investment": "Cardone Equity Fund 29, LLC",
+      "type": "Agreements",
+      "year": 2025,
+      "shared": "12/31/25",
+      "path": "documents/fund-29/CEF 29 Wire Instructions.pdf",
+      "received": true,
+      "appearsIn": [
+        "all-documents",
+        "by-investment:cardone-equity-fund-29-llc",
+        "offering-page:fund-29-opportunities-81"
+      ]
+    },
+    {
+      "folder": "fund-30",
+      "fileName": "Cardone Equity Fund 30 - PPM - FINAL - 07-08-26.pdf",
+      "investment": "Cardone Equity Fund 30, LLC",
+      "type": "Agreements",
+      "year": 2026,
+      "shared": "07/10/26",
+      "path": "documents/fund-30/Cardone Equity Fund 30 - PPM - FINAL - 07-08-26.pdf",
+      "received": true,
+      "appearsIn": [
+        "all-documents",
+        "by-investment:cardone-equity-fund-30-llc",
+        "offering-page:fund-30-opportunities-86"
+      ]
+    },
+    {
+      "folder": "fund-30",
+      "fileName": "Cardone Equity Fund 30 (Class A) - Subscription Booklet (July 2026) - FINAL - 07-08-26.pdf",
+      "investment": "Cardone Equity Fund 30, LLC",
+      "type": "Agreements",
+      "year": 2026,
+      "shared": "07/10/26",
+      "path": "documents/fund-30/Cardone Equity Fund 30 (Class A) - Subscription Booklet (July 2026) - FINAL - 07-08-26.pdf",
+      "received": true,
+      "appearsIn": [
+        "all-documents",
+        "by-investment:cardone-equity-fund-30-llc",
+        "offering-page:fund-30-opportunities-86"
+      ]
+    },
+    {
+      "folder": "fund-30",
+      "fileName": "Cardone Equity Fund 30 - Operating Agreement - FINAL - 07-08-26.pdf",
+      "investment": "Cardone Equity Fund 30, LLC",
+      "type": "Agreements",
+      "year": 2026,
+      "shared": "07/10/26",
+      "path": "documents/fund-30/Cardone Equity Fund 30 - Operating Agreement - FINAL - 07-08-26.pdf",
+      "received": true,
+      "appearsIn": [
+        "all-documents",
+        "by-investment:cardone-equity-fund-30-llc"
+      ]
+    },
+    {
+      "folder": "fund-30",
+      "fileName": "CEF 30 - Wire Instructions.pdf",
+      "investment": "Cardone Equity Fund 30, LLC",
+      "type": "Agreements",
+      "year": 2026,
+      "shared": "01/27/26",
+      "path": "documents/fund-30/CEF 30 - Wire Instructions.pdf",
+      "received": true,
+      "appearsIn": [
+        "all-documents",
+        "by-investment:cardone-equity-fund-30-llc",
+        "offering-page:fund-30-opportunities-86"
+      ]
+    }
+  ],
+  "pendingSignatures": [
+    {
+      "fileName": "Cardone Equity Fund 29 - Subscription Booklet - FINAL - 07-22-26.pdf",
+      "investment": "Cardone Equity Fund 29, LLC",
+      "investingEntity": "Puza, LLC",
+      "requested": "08/07/26",
+      "signaturePage": "/documents/signatures/31731",
+      "folder": "signatures-pending",
+      "received": true,
+      "appearsIn": [
+        "all-documents",
+        "by-investment:cardone-equity-fund-29-llc",
+        "offering-page:fund-29-opportunities-81"
+      ]
+    },
+    {
+      "fileName": "UPDATED W-9 Fund 29.pdf",
+      "investment": "Cardone Equity Fund 29, LLC",
+      "investingEntity": "Puza, LLC",
+      "requested": "08/03/26",
+      "signaturePage": "/documents/signatures/31578",
+      "folder": "signatures-pending",
+      "received": true,
+      "appearsIn": [
+        "signatures-pending"
+      ]
+    }
+  ],
+  "note": "All PDFs were supplied by the user and are filed in this kit: 21 physical PDF files representing 20 unique documents (the Fund 29 Subscription Booklet exists as both a clean 28-page master and a personalised 29-page signature copy).",
+  "status": "COMPLETE - all 21 files (20 unique documents) received and filed on 2026-11-01. See documents/STATUS.md.",
+  "arrangement": "See documents/ARRANGEMENT.md and documents/views/ \u2014 views mirror the portal exactly (order + membership); PDFs are stored once in the fund folders."
+}

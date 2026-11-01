@@ -1,0 +1,58 @@
+@import "tailwindcss";
+@import "@fontsource-variable/nunito-sans";
+
+/* Frozen design tokens (CLONE-PROMPT Section 19) */
+@theme {
+  --font-sans: "Nunito Sans Variable", "Proxima Nova", "Helvetica Neue", Arial, sans-serif;
+  --color-navy: #002c4f;
+  --color-active: #3c8627;
+  --color-brand: #0175d8;
+  --color-badge: #fcc43e;
+  --color-tab: #1aa3b8;
+  --color-ink: #212529;
+  --color-muted: #6c757d;
+  --color-hair: #dee2e6;
+  --color-page: #f5f6f7;
+  --color-danger: #d9534f;
+}
+
+:root {
+  --bg: #f5f6f7;
+  --card: #ffffff;
+  --text: #212529;
+  --muted: #6c757d;
+  --line: #dee2e6;
+  --btn2: #e9ecef;
+  --btn2-text: #212529;
+  --header: #ffffff;
+}
+html[data-theme="dark"] {
+  --bg: #14181d;
+  --card: #1e242b;
+  --text: #e8ecef;
+  --muted: #a0a8b0;
+  --line: #343c45;
+  --btn2: #333b44;
+  --btn2-text: #e8ecef;
+  --header: #1a2027;
+}
+
+html, body { background: var(--bg); color: var(--text); font-family: var(--font-sans); font-size: 16px; }
+a { color: #0175d8; text-decoration: none; }
+a:hover { text-decoration: underline; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+.btn { display: inline-flex; align-items: center; justify-content: center; border-radius: 4px; padding: 8px 16px; font-size: 16px; line-height: 1.4; cursor: pointer; border: 1px solid transparent; }
+.btn-primary { background: #0175d8; color: #fff; }
+.btn-primary:hover { background: #0165bb; text-decoration: none; }
+.btn-secondary { background: var(--btn2); color: var(--btn2-text); }
+.btn-secondary:hover { filter: brightness(.96); text-decoration: none; }
+.btn-outline { background: transparent; color: var(--text); border-color: #6c757d; }
+.btn-green { background: #3c8627; color: #fff; font-weight: 700; letter-spacing: .02em; }
+.muted { color: var(--muted); }
+.hair { border-color: var(--line); }
+th { font-weight: 700; text-align: left; }
+.badge-yellow { background: #fcc43e; color: #212529; border-radius: 9999px; font-weight: 700; font-size: 14px; min-width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; padding: 0 6px; }
+.input { width: 100%; border: 1px solid #ced4da; border-radius: 4px; padding: 8px 12px; background: var(--card); color: var(--text); font-size: 16px; }
+.input:focus { outline: 2px solid #0175d8; outline-offset: -1px; }
+.input[readonly], .input:disabled { background: var(--btn2); color: var(--muted); }
+.label { color: var(--muted); font-size: 14px; margin-bottom: 4px; display: block; }
