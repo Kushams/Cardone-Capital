@@ -41,7 +41,7 @@ html[data-theme="dark"] {
 }
 
 @layer base {
-html, body { background: var(--bg); color: var(--text); font-family: var(--font-sans); font-size: 14px; }
+html, body { background: var(--bg); color: var(--text); font-family: var(--font-sans); font-size: 14px; overflow-x: clip; }
 a { color: #0175d8; text-decoration: none; }
 a:hover { text-decoration: underline; }
 }

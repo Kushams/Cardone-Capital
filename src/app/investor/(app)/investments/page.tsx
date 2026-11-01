@@ -35,9 +35,9 @@ export default async function Dashboard() {
 
   return (
     <div className="max-w-[1180px]">
-      <PageTitle right={<div className="flex gap-6 pt-3 text-[14px] shrink-0">
-        <a href="https://cardonecapital.com/" target="_blank" rel="noreferrer">Cardone Capital Website</a>
-        <a href={REFER}>Refer a Friend</a></div>}>Dashboard</PageTitle>
+      <PageTitle right={<div className="flex flex-wrap gap-x-6 gap-y-1 pt-3 text-[14px]">
+        <a href="https://cardonecapital.com/" target="_blank" rel="noreferrer" className="whitespace-nowrap">Cardone Capital Website</a>
+        <a href={REFER} className="whitespace-nowrap">Refer a Friend</a></div>}>Dashboard</PageTitle>
 
       <div className="space-y-6">
         <Card>
