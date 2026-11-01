@@ -13,7 +13,7 @@ import Disclosure from "@/components/Disclosure";
 import BackToTop from "@/components/BackToTop";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
-  const o = getOffering("new", Number((await params).id));
+  const o = await getOffering("new", Number((await params).id));
   return { title: pageTitle(o?.name ?? "Offering") };
 }
 
@@ -22,14 +22,14 @@ const Check = () => <svg width="22" height="22" viewBox="0 0 24 24" aria-label="
 
 export default async function OfferingDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const o = getOffering("new", Number(id));
+  const o = await getOffering("new", Number(id));
   if (!o) notFound();
   const u = await requireUser(`/investor/opportunities/${id}`);
-  const client = getClient(u.clientId);
-  const mine = getCommitments(u.clientId).find((c) => c.offeringPortalId === o.portalId);
+  const client = await getClient(u.clientId);
+  const mine = (await getCommitments(u.clientId)).find((c) => c.offeringPortalId === o.portalId);
   const inProgress = !!o.inProgress && !!mine;
-  const sig = getPendingSignatures(u.clientId).find((s) => s.offeringPortalId === o.portalId);
-  const docs = (o.documentFiles ?? []).map((n) => ({ n, t: findTemplateByDisplay(n) }));
+  const sig = (await getPendingSignatures(u.clientId)).find((s) => s.offeringPortalId === o.portalId);
+  const docs = await Promise.all((o.documentFiles ?? []).map(async (n) => ({ n, t: await findTemplateByDisplay(n) })));
   const terms: [string, string | undefined][] = [
     ["Price Per Share", o.pricePerShare], ["Target Raise", o.targetRaise], ["Minimum Investment", o.minimumInvestment],
     ["Investment Period", o.investmentPeriod], ["Preferred Return", o.preferredReturn?.replace(".00%", "%")], ["Distribution Schedule", o.distributionSchedule],

@@ -16,11 +16,11 @@ const REFER = "mailto:?subject=Cardone%20Capital&body=" + encodeURIComponent("Ta
 
 export default async function Dashboard() {
   const u = await requireUser("/investor/investments");
-  const sigs = getPendingSignatures(u.clientId);
-  const entities = getEntities(u.clientId);
+  const sigs = await getPendingSignatures(u.clientId);
+  const entities = await getEntities(u.clientId);
   const needsBank = entities.some((e) => !e.distribution_method);
-  const commitments = getCommitments(u.clientId);
-  const recents = getOfferings("recent");
+  const commitments = await getCommitments(u.clientId);
+  const recents = await getOfferings("recent");
 
   const rows: Row[] = commitments.map((c) => ({
     id: c.id,

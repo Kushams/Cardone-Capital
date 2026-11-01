@@ -1,4 +1,4 @@
-import { db } from "./db";
+import { must, supabase } from "./supabase";
 import { listTemplates, templateHref, findTemplateByDisplay } from "./docs";
 import { DOC_PREVIEW, dotRule } from "@/data/seed-data";
 import { mdyFromISO } from "./catalog";
@@ -8,16 +8,21 @@ export interface DocRow { id: string; name: string; href: string; investment: st
 export interface SigRow { id: number; pageId: number; requested: string; requestedISO: string; docName: string; docHref: string; investment: string; entity: string }
 
 /** Static shared masters (per fund) + the client's own signed/executed instances. Membership comes from manifest `appearsIn`. */
-export function documentsFor(clientId: number): { all: DocRow[]; byFund: Map<number, DocRow[]>; fundNames: Map<number, string> } {
-  const tpls = listTemplates().filter((t) => t.offeringPortalId != null);
+export async function documentsFor(clientId: number): Promise<{ all: DocRow[]; byFund: Map<number, DocRow[]>; fundNames: Map<number, string> }> {
+  const tpls = (await listTemplates()).filter((t) => t.offeringPortalId != null);
   const toRow = (t: (typeof tpls)[number]): DocRow => ({ id: "t" + t.id, name: t.displayName, href: templateHref(t.id), investment: t.offeringName!, investmentPortalId: t.offeringPortalId!, entity: null,
     type: t.label, year: t.year, shared: t.shared, sharedISO: t.sharedISO, dot: dotRule(t.offeringPortalId, t.docType) });
-  const inst = db().prepare(`SELECT di.id, t.display_name n, t.year, di.signed_at sa, o.name inv, o.portal_id pid, e.name en
-    FROM document_instances di JOIN document_templates t ON t.id = di.template_id JOIN investing_entities e ON e.id = di.investing_entity_id
-    JOIN commitments c ON c.id = di.commitment_id JOIN offerings o ON o.id = c.offering_id
-    WHERE di.client_id = ? AND di.status IN ('SIGNED','EXECUTED')`).all(clientId) as any[];
-  const instRows: DocRow[] = inst.map((r) => ({ id: "i" + r.id, name: "EXECUTED " + r.n, href: `/investor/files/instances/${r.id}`, investment: r.inv, investmentPortalId: r.pid, entity: r.en, type: "Agreements",
-    year: new Date(r.sa).getFullYear(), shared: mdyFromISO(r.sa.slice(0, 10)), sharedISO: r.sa.slice(0, 10), dot: false }));
+  const inst = must(await supabase().from("document_instances").select(`
+      id, signed_at,
+      document_templates!inner ( display_name, year ),
+      investing_entities!inner ( name ),
+      commitments!inner ( offerings!inner ( name, portal_id ) )`)
+    .eq("client_id", clientId).in("status", ["SIGNED", "EXECUTED"])) as any[];
+  const instRows: DocRow[] = inst.map((r) => {
+    const sa = String(r.signed_at).slice(0, 10); // signed_at is timestamptz in Postgres; the UI works in yyyy-mm-dd
+    return { id: "i" + r.id, name: "EXECUTED " + r.document_templates.display_name, href: `/investor/files/instances/${r.id}`, investment: r.commitments.offerings.name, investmentPortalId: r.commitments.offerings.portal_id, entity: r.investing_entities.name, type: "Agreements",
+      year: new Date(r.signed_at).getFullYear(), shared: mdyFromISO(sa), sharedISO: sa, dot: false };
+  });
   const all = [...tpls.filter((t) => t.appearsIn.includes("all-documents")).map(toRow), ...instRows].sort((a, b) => b.sharedISO.localeCompare(a.sharedISO));
   const byFund = new Map<number, DocRow[]>(); const fundNames = new Map<number, string>();
   for (const pid of [81, 86, 87, 88]) {
@@ -28,14 +33,21 @@ export function documentsFor(clientId: number): { all: DocRow[]; byFund: Map<num
   }
   return { all, byFund, fundNames };
 }
-export function previewFor(pid: number, rows: DocRow[]): DocRow[] {
+export async function previewFor(pid: number, rows: DocRow[]): Promise<DocRow[]> {
   const names = DOC_PREVIEW[pid] ?? [];
-  return names.map((n) => { const t = findTemplateByDisplay(n); return rows.find((r) => t && r.id === "t" + t.id); }).filter(Boolean) as DocRow[];
+  const found = await Promise.all(names.map(async (n) => { const t = await findTemplateByDisplay(n); return rows.find((r) => t && r.id === "t" + t.id); }));
+  return found.filter(Boolean) as DocRow[];
 }
-export function signatureRows(clientId: number): SigRow[] {
-  return (db().prepare(`SELECT sr.id, sr.signature_page_id pageId, sr.requested_at iso, t.display_name n, di.id instId, o.name inv, e.name en, t.doc_type dt
-    FROM signature_requests sr JOIN document_instances di ON di.id = sr.document_instance_id JOIN document_templates t ON t.id = di.template_id
-    JOIN investing_entities e ON e.id = sr.investing_entity_id JOIN commitments c ON c.id = di.commitment_id JOIN offerings o ON o.id = c.offering_id
-    WHERE di.client_id = ? AND sr.status IN ('PENDING','AGREED') ORDER BY sr.requested_at DESC, sr.id DESC`).all(clientId) as any[])
-    .map((r) => ({ id: r.id, pageId: r.pageId, requested: mdyFromISO(r.iso), requestedISO: r.iso, docName: packetName(r.n.replace(/^EXECUTED /, ""), r.dt, Number(/Fund (\d+)/.exec(r.inv)?.[1]) || null), docHref: `/investor/files/instances/${r.instId}`, investment: r.inv, entity: r.en }));
+export async function signatureRows(clientId: number): Promise<SigRow[]> {
+  const rows = must(await supabase().from("signature_requests").select(`
+      id, signature_page_id, requested_at,
+      investing_entities!inner ( name ),
+      document_instances!inner ( id, document_templates!inner ( display_name, doc_type ), commitments!inner ( offerings!inner ( name ) ) )`)
+    .eq("document_instances.client_id", clientId).in("status", ["PENDING", "AGREED"])
+    .order("requested_at", { ascending: false }).order("id", { ascending: false })) as any[];
+  return rows.map((r) => {
+    const iso = String(r.requested_at).slice(0, 10); // requested_at is timestamptz in Postgres; UI works in yyyy-mm-dd (as the SQLite dates were stored)
+    const di = r.document_instances;
+    return { id: r.id, pageId: r.signature_page_id, requested: mdyFromISO(iso), requestedISO: iso, docName: packetName(di.document_templates.display_name.replace(/^EXECUTED /, ""), di.document_templates.doc_type, Number(/Fund (\d+)/.exec(di.commitments.offerings.name)?.[1]) || null), docHref: `/investor/files/instances/${di.id}`, investment: di.commitments.offerings.name, entity: r.investing_entities.name };
+  });
 }

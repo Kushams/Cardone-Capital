@@ -1,7 +1,7 @@
 import { PDFDocument, PDFName, StandardFonts, degrees, rgb, type PDFFont } from "pdf-lib";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import type { DatabaseSync } from "node:sqlite";
+import type { PortalDb } from "./db";
+import { readPortalFile, writePortalFile } from "./storage";
 import { decryptSecret } from "./crypto";
 import { fmtUSD } from "./catalog";
 import coords from "@/data/booklet-field-coords.json";
@@ -11,8 +11,9 @@ import coords from "@/data/booklet-field-coords.json";
  *  - SUBSCRIPTION_BOOKLET = master + in-body fills (field map) + diagonal entity-name watermark on every page + Summary page (last)
  *  - W9                   = blank W-9 master + watermark on every page + Summary page (last)   [no fills inside the form itself]
  * The full Tax ID is decrypted ONLY in this module, at generation time, and written only into the output PDF.
+ * Master/output bytes move through ./storage (Supabase Storage when configured, local disk otherwise);
+ * instance rows move through the PortalDb data layer (./db).
  */
-const ROOT = process.cwd();
 // Helvetica/Times are WinAnsi-only: replace anything unencodable so generation never throws on unusual names.
 const safe = (s: string) => s.replace(/[^\x20-\x7E -ÿ‘’“”–—•]/g, "?");
 
@@ -25,18 +26,14 @@ export function packetName(templateDisplayName: string, doc_type: string, fundNu
 }
 const fundNumberOf = (offeringName: string) => Number(/Fund (\d+)/.exec(offeringName)?.[1] ?? 0) || null;
 
-function loadInstance(d: DatabaseSync, instanceId: number) {
-  const r = d.prepare(`SELECT di.id, di.client_id cid, di.status, t.doc_type, t.display_name, t.master_file_path master, o.name offeringName,
-      e.name ename, e.entity_type etype, e.holding_title htitle, e.tax_id_encrypted tid, e.tax_address taddr, e.k1_name k1, c.desired_commitment amt,
-      cl.email, cl.phone, cl.address
-    FROM document_instances di JOIN document_templates t ON t.id = di.template_id JOIN investing_entities e ON e.id = di.investing_entity_id
-    JOIN clients cl ON cl.id = di.client_id JOIN commitments c ON c.id = di.commitment_id JOIN offerings o ON o.id = c.offering_id WHERE di.id = ?`).get(instanceId) as any;
+async function loadInstance(d: PortalDb, instanceId: number) {
+  const r = await d.loadInstanceRow(instanceId);
   if (!r) throw new Error("instance not found: " + instanceId);
   return r;
 }
-export function taxAddressLine(json: string | null): string {
+export function taxAddressLine(json: unknown): string {
   if (!json) return "";
-  const a = JSON.parse(json);
+  const a = (typeof json === "string" ? JSON.parse(json) : json) as any;
   return [a.address, a.address2, a.city, [a.state, a.zip].filter(Boolean).join(" ")].filter(Boolean).join(", ");
 }
 
@@ -80,13 +77,13 @@ function fillBooklet(pdf: PDFDocument, masterFile: string, e: EntityData, H: PDF
   }
 }
 
-export async function buildInstancePdf(d: DatabaseSync, instanceId: number): Promise<{ bytes: Uint8Array; fileName: string }> {
-  const r = loadInstance(d, instanceId);
+export async function buildInstancePdf(d: PortalDb, instanceId: number): Promise<{ bytes: Uint8Array; fileName: string }> {
+  const r = await loadInstance(d, instanceId);
   const e: EntityData = {
     name: r.ename, entityType: r.etype ?? "", holdingTitle: r.htitle ?? "", taxId: r.tid ? decryptSecret(r.tid) : "", taxAddress: taxAddressLine(r.taddr),
     k1Name: r.k1 ?? r.ename, email: r.email ?? "", phone: r.phone ?? "", address: taxAddressLine(r.taddr), committed: fmtUSD(r.amt), committedNumber: r.amt.toLocaleString("en-US"),
   };
-  const pdf = await PDFDocument.load(readFileSync(path.join(ROOT, r.master)), { ignoreEncryption: true, updateMetadata: false });
+  const pdf = await PDFDocument.load(await readPortalFile(r.master), { ignoreEncryption: true, updateMetadata: false });
   try { pdf.catalog.lookup(PDFName.of("AcroForm"), (await import("pdf-lib")).PDFDict).delete(PDFName.of("XFA")); } catch { /* no XFA */ }
   const H = await pdf.embedFont(StandardFonts.Helvetica);
   if (r.doc_type === "SUBSCRIPTION_BOOKLET") fillBooklet(pdf, r.master, e, H);
@@ -98,29 +95,28 @@ export async function buildInstancePdf(d: DatabaseSync, instanceId: number): Pro
 }
 
 /** Generates and stores the per-client instance. Returns the repo-relative path. */
-export async function generateInstance(d: DatabaseSync, instanceId: number): Promise<string> {
-  const r = loadInstance(d, instanceId);
+export async function generateInstance(d: PortalDb, instanceId: number): Promise<string> {
+  const r = await loadInstance(d, instanceId);
   const { bytes } = await buildInstancePdf(d, instanceId);
   const rel = path.join("storage", "generated", String(r.cid), `${instanceId}.pdf`);
-  mkdirSync(path.join(ROOT, path.dirname(rel)), { recursive: true });
-  writeFileSync(path.join(ROOT, rel), bytes);
-  d.prepare("UPDATE document_instances SET generated_file_path = ? WHERE id = ?").run(rel, instanceId);
+  await writePortalFile(rel, bytes);
+  await d.setGeneratedFilePath(instanceId, rel);
   return rel;
 }
 
 /** After a Tax ID / address correction: unsigned instances are regenerated; executed ones are historical and untouched (§17). */
-export async function regeneratePendingForEntity(d: DatabaseSync, entityId: number) {
-  const rows = d.prepare("SELECT id FROM document_instances WHERE investing_entity_id = ? AND status IN ('DRAFT','PENDING_SIGNATURE')").all(entityId) as { id: number }[];
-  for (const r of rows) await generateInstance(d, r.id);
+export async function regeneratePendingForEntity(d: PortalDb, entityId: number) {
+  const rows = await d.pendingInstanceIdsForEntity(entityId);
+  for (const id of rows) await generateInstance(d, id);
   return rows.length;
 }
 
 /** STUB e-signature: stamps a typed-name signature block on a COPY of the generated PDF and stores it as the client's executed copy. */
-export async function executeInstance(d: DatabaseSync, instanceId: number, signerName: string): Promise<string> {
-  const r = loadInstance(d, instanceId);
-  let src = (d.prepare("SELECT generated_file_path p FROM document_instances WHERE id = ?").get(instanceId) as any)?.p as string | null;
+export async function executeInstance(d: PortalDb, instanceId: number, signerName: string): Promise<string> {
+  const r = await loadInstance(d, instanceId);
+  let src = await d.generatedFilePath(instanceId);
   if (!src) src = await generateInstance(d, instanceId);
-  const pdf = await PDFDocument.load(readFileSync(path.join(ROOT, src)));
+  const pdf = await PDFDocument.load(await readPortalFile(src));
   const page = pdf.getPages().at(-1)!; // Summary page
   const H = await pdf.embedFont(StandardFonts.Helvetica), HB = await pdf.embedFont(StandardFonts.HelveticaBold);
   const when = new Date().toISOString().replace("T", " ").slice(0, 16) + " UTC";
@@ -130,9 +126,7 @@ export async function executeInstance(d: DatabaseSync, instanceId: number, signe
   page.drawText(`Signed electronically on ${when}`, { x: 36, y: 792 - 562, size: 8, font: H });
   page.drawText("DEMO / STUB SIGNATURE — typed-name capture only; not a legally executed signature.", { x: 36, y: 792 - 575, size: 7, font: HB, color: rgb(0.7, 0.1, 0.1) });
   const rel = path.join("storage", "executed", String(r.cid), `${instanceId}.pdf`);
-  mkdirSync(path.join(ROOT, path.dirname(rel)), { recursive: true });
-  writeFileSync(path.join(ROOT, rel), await pdf.save());
-  d.prepare("UPDATE document_instances SET executed_file_path = ?, status = 'EXECUTED', signed_at = datetime('now') WHERE id = ?").run(rel, instanceId);
-  d.prepare("UPDATE signature_requests SET status = 'SIGNED' WHERE document_instance_id = ?").run(instanceId);
+  await writePortalFile(rel, await pdf.save());
+  await d.markExecuted(instanceId, rel);
   return rel;
 }

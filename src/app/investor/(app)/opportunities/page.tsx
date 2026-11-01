@@ -6,8 +6,8 @@ import { NewCard } from "@/components/OfferingBits";
 
 export const metadata: Metadata = { title: pageTitle("New Offerings") };
 
-export default function NewOfferings() {
-  const offerings = getOfferings("new");
+export default async function NewOfferings() {
+  const offerings = await getOfferings("new");
   return (
     <div className="max-w-[1180px]">
       <PageTitle>New Offerings</PageTitle>

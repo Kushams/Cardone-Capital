@@ -9,7 +9,7 @@ import { mapsUrl, perfRows } from "@/components/OfferingBits";
 import type { Asset } from "@/data/types";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
-  return { title: pageTitle(getOffering("recent", Number((await params).id))?.name ?? "Offering") };
+  return { title: pageTitle((await getOffering("recent", Number((await params).id)))?.name ?? "Offering") };
 }
 
 const fmtN = (n: number) => n.toLocaleString("en-US");
@@ -24,7 +24,7 @@ function facts(a: Asset): [string, string][] {
 
 export default async function RecentOffering({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const o = getOffering("recent", Number(id));
+  const o = await getOffering("recent", Number(id));
   if (!o) notFound();
   await requireUser(`/investor/recent_offerings/${id}`);
   const perf = perfRows(o.performance);

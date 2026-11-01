@@ -1,6 +1,6 @@
 "use server";
 import { redirect } from "next/navigation";
-import { db } from "@/lib/db";
+import { must, supabase } from "@/lib/supabase";
 import { encryptSecret } from "@/lib/crypto";
 import { requireUser } from "@/lib/auth";
 import { ENTITY_TYPES, PAYMENT_METHODS } from "@/lib/constants";
@@ -33,18 +33,23 @@ export async function onboardingAction(_: OnbState, f: FormData): Promise<OnbSta
   }
   if (Object.keys(e).length) return { errors: e, values: v };
 
-  const d = db();
-  d.exec("BEGIN");
-  try {
-    d.prepare("UPDATE clients SET full_name = ?, phone = ?, address = ?, onboarding_completed_at = datetime('now') WHERE id = ?")
-      .run(full, phone, [ta.address, ta.city, `${ta.state} ${ta.zip}`].join(", "), u.clientId);
-    const eid = Number(d.prepare(`INSERT INTO investing_entities (client_id, name, entity_type, is_disregarded, holding_title, tax_address, tax_id_encrypted, k1_name, distribution_method)
-      VALUES (?,?,?,?,?,?,?,?,?)`).run(u.clientId, entName, type, f.get("disregarded") ? 1 : 0, holding, JSON.stringify(ta), encryptSecret(tin), k1,
-      anyDist ? JSON.stringify({ payment_method: method, bank_account_id: null, is_custodian_fbo: !!f.get("custodian"), payee_name: payee, payment_address: addr(f, "pay") }) : null).lastInsertRowid);
-    d.prepare("INSERT INTO entity_contacts (entity_id, name, emails, phones, is_primary, document_access, required_signer) VALUES (?,?,?,?,1,'All Documents',1)")
-      .run(eid, full, JSON.stringify([email]), JSON.stringify([phone]));
-    d.prepare("UPDATE authorized_emails SET status = 'ACTIVE', activated_at = datetime('now') WHERE email = ?").run(u.email);
-    d.exec("COMMIT");
-  } catch (err) { d.exec("ROLLBACK"); throw err; }
+  // The SQLite build wrapped these four writes in one transaction; PostgREST has no
+  // multi-statement transactions, so they run in dependency order with the client's
+  // onboarding flag flipped LAST — a failure mid-way leaves the client not-onboarded
+  // (and able to retry) instead of onboarded without an investing entity.
+  const sb = supabase();
+  const now = new Date().toISOString();
+  const ent = must(await sb.from("investing_entities").insert({
+    client_id: u.clientId, name: entName, entity_type: type, is_disregarded: !!f.get("disregarded"), holding_title: holding,
+    tax_address: ta, tax_id_encrypted: encryptSecret(tin), k1_name: k1,
+    distribution_method: anyDist ? { payment_method: method, bank_account_id: null, is_custodian_fbo: !!f.get("custodian"), payee_name: payee, payment_address: addr(f, "pay") } : null,
+  }).select("id").single()) as any;
+  must(await sb.from("entity_contacts").insert({
+    entity_id: ent.id, name: full, emails: [email], phones: [phone], is_primary: true, document_access: "All Documents", required_signer: true,
+  }));
+  must(await sb.from("clients").update({
+    full_name: full, phone, address: [ta.address, ta.city, `${ta.state} ${ta.zip}`].join(", "), onboarding_completed_at: now,
+  }).eq("id", u.clientId));
+  must(await sb.from("authorized_emails").update({ status: "ACTIVE", activated_at: now }).eq("email", u.email));
   redirect("/investor/investments");
 }

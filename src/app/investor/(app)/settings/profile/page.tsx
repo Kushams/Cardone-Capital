@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { pageTitle } from "@/lib/nav";
 import { requireUser } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { must, supabase } from "@/lib/supabase";
 import { getClient, getEntities } from "@/lib/queries";
 import PageTitle from "@/components/PageTitle";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -14,9 +14,14 @@ export const AlertIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" a
 
 export default async function Profile() {
   const u = await requireUser("/investor/settings/profile");
-  const c = getClient(u.clientId);
-  const entities = getEntities(u.clientId);
-  const inv = (id: number) => (db().prepare("SELECT DISTINCT o.name FROM commitments c JOIN offerings o ON o.id = c.offering_id WHERE c.investing_entity_id = ?").all(id) as any[]).map((r) => r.name).join(", ") || "--";
+  const c = await getClient(u.clientId);
+  const entities = await getEntities(u.clientId);
+  const invNames = new Map<number, string>();
+  for (const e of entities) {
+    const rows = must(await supabase().from("commitments").select("offerings!inner ( name )").eq("investing_entity_id", e.id)) as any[];
+    invNames.set(e.id, [...new Set(rows.map((r) => r.offerings.name))].join(", ") || "--");
+  }
+  const inv = (id: number) => invNames.get(id) ?? "--";
   return (
     <div className="max-w-[820px] mx-auto">
       <PageTitle right={<div className="pt-3 shrink-0"><ThemeToggle dark={u.darkTheme} /></div>}>My Profile</PageTitle>

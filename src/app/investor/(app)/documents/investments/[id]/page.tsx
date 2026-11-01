@@ -12,7 +12,7 @@ export const metadata: Metadata = { title: pageTitle("Documents") };
 export default async function FundPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const u = await requireUser(`/investor/documents/investments/${id}`);
-  const { byFund, fundNames } = documentsFor(u.clientId);
+  const { byFund, fundNames } = await documentsFor(u.clientId);
   const rows = byFund.get(Number(id));
   if (!rows) notFound();
   const years = [...new Set(rows.map((d) => d.year).filter((y): y is number => !!y))].sort((a, b) => b - a);
@@ -20,7 +20,7 @@ export default async function FundPage({ params }: { params: Promise<{ id: strin
     <div className="max-w-[1180px]">
       <p className="text-sm mb-2"><Link href="/investor/documents">Documents</Link> › All</p>
       <h1 className="text-[32px] md:text-[40px] leading-tight font-bold text-[var(--heading)] mb-6">{fundNames.get(Number(id))}</h1>
-      <FundDocuments rows={rows} entities={getEntities(u.clientId).map((e) => e.name)} years={years} />
+      <FundDocuments rows={rows} entities={(await getEntities(u.clientId)).map((e) => e.name)} years={years} />
     </div>
   );
 }

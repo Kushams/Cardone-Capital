@@ -2,7 +2,7 @@
    Usage: npm run db:seed   (drops and recreates storage/db/portal.sqlite) */
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import path from "node:path";
-import { openDb } from "../src/lib/db";
+import { openDb, sqlitePortalDb } from "./sqlite-db";
 import { encryptSecret, hashPassword } from "../src/lib/crypto";
 import { ALL_OFFERINGS, DEMO } from "../src/data/seed-data";
 import { createSignatureDocuments } from "../src/lib/instances";
@@ -13,6 +13,7 @@ const root = process.cwd();
 const dbPath = process.env.DB_PATH ?? path.join(root, "storage", "db", "portal.sqlite");
 for (const ext of ["", "-wal", "-shm"]) if (existsSync(dbPath + ext)) rmSync(dbPath + ext);
 const db = openDb(dbPath);
+const pdb = sqlitePortalDb(db);
 
 async function main() {
 // ---- offerings ----
@@ -67,12 +68,12 @@ for (const c of DEMO.clients) {
   const commitId = Number(insCommit.run(eid, 81, c.commitment).lastInsertRowid);
   // First demo client gets the same signature-page ids/dates the portal shows (31731 / 31578); the rest get fresh ids.
   const first = c === DEMO.clients[0];
-  createSignatureDocuments(db, commitId, first ? { bookletPageId: 31731, w9PageId: 31578, bookletRequested: "2026-08-07", w9Requested: "2026-08-03" } : { bookletRequested: "2026-08-07", w9Requested: "2026-08-03" });
+  await createSignatureDocuments(pdb, commitId, first ? { bookletPageId: 31731, w9PageId: 31578, bookletRequested: "2026-08-07", w9Requested: "2026-08-03" } : { bookletRequested: "2026-08-07", w9Requested: "2026-08-03" });
 }
 // an invited-but-not-onboarded email (allowlist demo)
 db.prepare("INSERT INTO authorized_emails (email, invited_by, status) VALUES (?, 'seed', 'INVITED')").run(DEMO.invitedNotOnboarded);
 
-for (const r of db.prepare("SELECT id FROM document_instances").all() as { id: number }[]) await generateInstance(db, r.id);
+for (const r of db.prepare("SELECT id FROM document_instances").all() as { id: number }[]) await generateInstance(pdb, r.id);
 console.log(`Seeded: ${ALL_OFFERINGS.length} offerings, ${count} document templates, ${DEMO.clients.length} fictional demo clients -> ${dbPath}`);
 }
 main();

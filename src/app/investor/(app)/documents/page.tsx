@@ -12,8 +12,8 @@ export default async function Documents() {
   const u = await requireUser("/investor/documents");
   const c = (await cookies()).get("cc_docs_tab")?.value;
   const initial = c === "investment" || c === "signatures" ? c : "all";
-  const { all, byFund, fundNames } = documentsFor(u.clientId);
-  const funds = [81, 86, 87, 88].map((pid) => ({ portalId: pid, name: fundNames.get(pid)!, preview: previewFor(pid, byFund.get(pid)!), total: byFund.get(pid)!.length }));
+  const { all, byFund, fundNames } = await documentsFor(u.clientId);
+  const funds = await Promise.all([81, 86, 87, 88].map(async (pid) => ({ portalId: pid, name: fundNames.get(pid)!, preview: await previewFor(pid, byFund.get(pid)!), total: byFund.get(pid)!.length })));
   const years = [...new Set(all.map((d) => d.year).filter((y): y is number => !!y))].sort((a, b) => b - a);
-  return <DocumentsView initialTab={initial} all={all} funds={funds} sigs={signatureRows(u.clientId)} entities={getEntities(u.clientId).map((e) => e.name)} years={years} />;
+  return <DocumentsView initialTab={initial} all={all} funds={funds} sigs={await signatureRows(u.clientId)} entities={(await getEntities(u.clientId)).map((e) => e.name)} years={years} />;
 }

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { pageTitle } from "@/lib/nav";
 import { requireUser } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { must, supabase } from "@/lib/supabase";
 import Card from "@/components/Card";
 import { agreeAction, signAction } from "./actions";
 import { packetName } from "@/lib/personalise";
@@ -21,11 +21,14 @@ const CONSENT_SECTIONS = [
 export default async function SignPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ signed?: string; error?: string }> }) {
   const { id } = await params; const sp = await searchParams;
   const u = await requireUser(`/investor/documents/signatures/${id}`);
-  const r = db().prepare(`SELECT sr.status, sr.signature_page_id pageId, di.id inst, e.name entity, t.display_name dn, t.doc_type dt, o.name offering
-    FROM signature_requests sr JOIN document_instances di ON di.id = sr.document_instance_id JOIN investing_entities e ON e.id = sr.investing_entity_id
-    JOIN document_templates t ON t.id = di.template_id JOIN commitments c ON c.id = di.commitment_id JOIN offerings o ON o.id = c.offering_id
-    WHERE sr.signature_page_id = ? AND di.client_id = ?`).get(Number(id), u.clientId) as any;
-  if (!r) notFound(); // another client's page id is indistinguishable from a missing one
+  const q = must(await supabase().from("signature_requests").select(`
+      status, signature_page_id,
+      investing_entities!inner ( name ),
+      document_instances!inner ( id, client_id, document_templates!inner ( display_name, doc_type ), commitments!inner ( offerings!inner ( name ) ) )`)
+    .eq("signature_page_id", Number(id)).eq("document_instances.client_id", u.clientId).maybeSingle()) as any;
+  if (!q) notFound(); // another client's page id is indistinguishable from a missing one
+  const r = { status: q.status, pageId: q.signature_page_id, inst: q.document_instances.id, entity: q.investing_entities.name,
+    dn: q.document_instances.document_templates.display_name, dt: q.document_instances.document_templates.doc_type, offering: q.document_instances.commitments.offerings.name };
   const docName = packetName(r.dn, r.dt, Number(/Fund (\d+)/.exec(r.offering)?.[1]) || null);
   const pageId = Number(id);
 
