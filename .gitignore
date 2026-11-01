@@ -1,0 +1,16 @@
+node_modules
+.next
+next-env.d.ts
+*.tsbuildinfo
+# local database, generated/executed per-client PDFs and dev keys never go in git
+storage/db/*
+storage/generated/*
+storage/executed/*
+storage/.dev-key
+.env*
+!.env.example
+# HARD RULE: personalised sample documents from a real investor must never be in the repo or any deployment
+signatures-pending/
+**/signatures-pending/**
+screenshots/work
+backup/

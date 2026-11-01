@@ -1,0 +1,15 @@
+const { chromium } = require('playwright'); const fs=require('fs');
+const BASE='http://localhost:3000', OUT='/home/user/Cardone-Capital/screenshots/work', REF='/home/user/Cardone-Capital/storage/reference/';
+(async()=>{const b=await chromium.launch(); const c=await b.newContext({viewport:{width:402,height:874},deviceScaleFactor:3,isMobile:true,hasTouch:true}); const p=await c.newPage();
+await p.goto(BASE+'/investor/login');await p.waitForLoadState('networkidle');await p.fill('input[name=email]','alex.demo@example.test');await p.fill('input[name=password]','Demo-Passw0rd!Change');await p.click('button[type=submit]');await p.waitForURL('**/investments');
+await p.goto(BASE+'/investor/documents');await p.waitForLoadState('networkidle');await p.click('[role=tab]:has-text("All")');await p.waitForTimeout(300);
+await p.screenshot({path:OUT+'/clone-all-top.png'});
+await p.evaluate(()=>window.scrollTo(0,1300));await p.waitForTimeout(200);await p.screenshot({path:OUT+'/clone-all-list.png'});
+await p.goto(BASE+'/investor/documents/signatures');await p.waitForLoadState('networkidle');await p.screenshot({path:OUT+'/clone-signatures.png'});
+await p.goto(BASE+'/investor/documents');await p.waitForLoadState('networkidle');await p.click('[role=tab]:has-text("All")');await p.click('[data-testid=hamburger]');await p.waitForTimeout(400);await p.screenshot({path:OUT+'/clone-drawer.png'});
+await b.close();
+const img=f=>'data:image/'+(f.endsWith('jpg')?'jpeg':'png')+';base64,'+fs.readFileSync(f).toString('base64');
+const pairs=[['documents-all-mobile-top','clone-all-top','Documents → All (top)'],['documents-all-mobile-list','clone-all-list','Documents → All (list)'],['documents-signatures-mobile','clone-signatures','Documents → Signatures'],['mobile-menu-drawer','clone-drawer','Menu drawer']];
+const col=(f,t)=>`<div style="text-align:center"><img src="${img(f)}" style="height:880px;border:1px solid #999"><div style="font:13px Arial">${t}</div></div>`;
+const html=`<body style="margin:0;padding:14px;background:#ddd;font-family:Arial"><h3 style="margin:4px 0 10px">Side-by-side visual QA — reference (left of each pair) vs clone (right)</h3><div style="display:flex;gap:26px">${pairs.map(([r,c,t])=>`<div style="display:flex;gap:6px">${col(REF+'reference-screenshot-'+r+'.jpg','ORIGINAL')}${col(OUT+'/'+c+'.png','CLONE')}</div>`).join('')}</div></body>`;
+const b2=await chromium.launch();const q=await b2.newPage({viewport:{width:3000,height:1000}});await q.setContent(html);await q.screenshot({path:'/home/user/Cardone-Capital/screenshots/h01-visual-qa-mobile.png',fullPage:true});await b2.close();})();
