@@ -12,7 +12,7 @@ export interface EntityView {
 }
 const Row = ({ l, v }: { l: string; v: React.ReactNode }) => <div><dt className="label">{l}</dt><dd className="mb-4 break-words">{v || "--"}</dd></div>;
 const Err = ({ m }: { m?: string }) => (m ? <span role="alert" className="text-danger text-sm block mt-1">{m}</span> : null);
-const Head = ({ title, right }: { title: string; right?: React.ReactNode }) => <div className="flex items-center justify-between mb-4"><h2 className="text-[22px] md:text-[26px] font-bold">{title}</h2>{right}</div>;
+const Head = ({ title, right }: { title: string; right?: React.ReactNode }) => <div className="flex items-center justify-between mb-4"><h2 className="text-[19px] md:text-[23px] font-bold">{title}</h2>{right}</div>;
 
 function DetailsCard({ e }: { e: EntityView }) {
   const [edit, setEdit] = useState(false); const [note, setNote] = useState(false);
@@ -31,7 +31,7 @@ function DetailsCard({ e }: { e: EntityView }) {
           <label className="block"><span className="label">Tax ID Number</span><input className="input max-w-[300px]" value={e.maskedTin} readOnly /></label>
           <div className="flex flex-wrap items-end gap-6">
             <label className="block"><span className="label">Entity Type</span><input className="input" value={e.entityType} readOnly /></label>
-            <label className="flex items-center gap-2 pb-2"><input type="checkbox" name="disregarded" defaultChecked={e.disregarded} /> Mark as a Disregarded Entity <span title="A disregarded entity is treated as separate from its owner for tax purposes." aria-label="info" className="inline-flex w-4 h-4 rounded-full border text-[11px] items-center justify-center muted">i</span></label>
+            <label className="flex items-center gap-2 pb-2"><input type="checkbox" name="disregarded" defaultChecked={e.disregarded} /> Mark as a Disregarded Entity <span title="A disregarded entity is treated as separate from its owner for tax purposes." aria-label="info" className="inline-flex w-4 h-4 rounded-full border text-[10px] items-center justify-center muted">i</span></label>
           </div>
           <p className="muted text-sm">Tax ID and Entity Type are managed by the firm after the entity is created.</p>
           <div><span className="label">Tax Address</span><AddressFields prefix="tax" v={e.taxAddress ?? {}} /><Err m={state.errors?.tax} /></div>

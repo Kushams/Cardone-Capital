@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { pageTitle } from "@/lib/nav";
 import { requireUser } from "@/lib/auth";
-import { db } from "@/lib/db";
+import { must, supabase } from "@/lib/supabase";
 import Card from "@/components/Card";
 import { agreeAction, signAction } from "./actions";
 import { packetName } from "@/lib/personalise";
@@ -21,17 +21,20 @@ const CONSENT_SECTIONS = [
 export default async function SignPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ signed?: string; error?: string }> }) {
   const { id } = await params; const sp = await searchParams;
   const u = await requireUser(`/investor/documents/signatures/${id}`);
-  const r = db().prepare(`SELECT sr.status, sr.signature_page_id pageId, di.id inst, e.name entity, t.display_name dn, t.doc_type dt, o.name offering
-    FROM signature_requests sr JOIN document_instances di ON di.id = sr.document_instance_id JOIN investing_entities e ON e.id = sr.investing_entity_id
-    JOIN document_templates t ON t.id = di.template_id JOIN commitments c ON c.id = di.commitment_id JOIN offerings o ON o.id = c.offering_id
-    WHERE sr.signature_page_id = ? AND di.client_id = ?`).get(Number(id), u.clientId) as any;
-  if (!r) notFound(); // another client's page id is indistinguishable from a missing one
+  const q = must(await supabase().from("signature_requests").select(`
+      status, signature_page_id,
+      investing_entities!inner ( name ),
+      document_instances!inner ( id, client_id, document_templates!inner ( display_name, doc_type ), commitments!inner ( offerings!inner ( name ) ) )`)
+    .eq("signature_page_id", Number(id)).eq("document_instances.client_id", u.clientId).maybeSingle()) as any;
+  if (!q) notFound(); // another client's page id is indistinguishable from a missing one
+  const r = { status: q.status, pageId: q.signature_page_id, inst: q.document_instances.id, entity: q.investing_entities.name,
+    dn: q.document_instances.document_templates.display_name, dt: q.document_instances.document_templates.doc_type, offering: q.document_instances.commitments.offerings.name };
   const docName = packetName(r.dn, r.dt, Number(/Fund (\d+)/.exec(r.offering)?.[1]) || null);
   const pageId = Number(id);
 
   return (
     <div className="max-w-[900px]">
-      <h1 className="text-[32px] md:text-[40px] font-bold text-[var(--heading)] mb-6">Please Review and Sign</h1>
+      <h1 className="text-[28px] md:text-[35px] font-bold text-[var(--heading)] mb-6">Please Review and Sign</h1>
 
       {r.status === "SIGNED" ? (
         <Card>
@@ -59,7 +62,7 @@ export default async function SignPage({ params, searchParams }: { params: Promi
       ) : (
         <Card>
           <h2 className="text-2xl font-bold">Electronic Communications Consent</h2>
-          <div tabIndex={0} aria-label="Electronic Communications Consent document" className="mt-4 h-[340px] overflow-y-auto border hair rounded p-4 text-[15px] leading-7 bg-[var(--card)]" data-testid="consent-frame">
+          <div tabIndex={0} aria-label="Electronic Communications Consent document" className="mt-4 h-[340px] overflow-y-auto border hair rounded p-4 text-[13px] leading-7 bg-[var(--card)]" data-testid="consent-frame">
             <p className="text-sm font-bold mb-3" style={{ color: "#b45309" }}>PLACEHOLDER — the firm’s own electronic-records-and-signatures consent text was not included in the kit. Insert it here (do not invent legal wording). Section structure below follows the original, in order.</p>
             {CONSENT_SECTIONS.map((s, i) => (<section key={s} className="mb-4"><h3 className="font-bold">{s}</h3><p className="muted">[Firm text for section {i + 1} goes here.]</p></section>))}
             <section className="mb-4"><h3 className="font-bold">Acceptance and Consent</h3>

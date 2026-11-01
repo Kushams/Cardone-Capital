@@ -1,25 +1,25 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
-import { db } from "@/lib/db";
+import { must, supabase } from "@/lib/supabase";
+import { portalDb } from "@/lib/db";
+import { readPortalFile } from "@/lib/storage";
 import { getCurrentUser } from "@/lib/auth";
-import { generateInstance, buildInstancePdf } from "@/lib/personalise";
+import { generateInstance, packetName } from "@/lib/personalise";
 
 /** A client's OWN per-client document (generated, or executed after signing). Scoped to the logged-in client — never another's. */
 export async function GET(_: Request, { params }: { params: Promise<{ id: string }> }) {
   const u = await getCurrentUser();
   if (!u) return new Response("Unauthorized", { status: 401 });
   const id = Number((await params).id);
-  const r = db().prepare("SELECT client_id c, generated_file_path g, executed_file_path x FROM document_instances WHERE id = ?").get(id) as any;
-  if (!r || r.c !== u.clientId) return new Response("Not found", { status: 404 }); // identical response for 'not yours' and 'missing'
-  let rel = r.x ?? r.g;
-  if (!rel) rel = await generateInstance(db(), id);
+  const r = must(await supabase().from("document_instances").select("client_id, generated_file_path, executed_file_path").eq("id", id).maybeSingle()) as any;
+  if (!r || r.client_id !== u.clientId) return new Response("Not found", { status: 404 }); // identical response for 'not yours' and 'missing'
+  let rel = r.executed_file_path ?? r.generated_file_path;
+  if (!rel) rel = await generateInstance(portalDb(), id);
   const { fileName } = await buildInstancePdfName(id);
-  const buf = await readFile(path.join(process.cwd(), rel));
+  const buf = await readPortalFile(rel);
   return new Response(new Uint8Array(buf), { headers: { "Content-Type": "application/pdf", "Content-Disposition": `inline; filename="${fileName.replace(/["\\/]/g, "-")}"`, "Cache-Control": "private, no-store" } });
 }
 async function buildInstancePdfName(id: number) {
-  const r = db().prepare(`SELECT t.display_name n, t.doc_type dt, o.name o FROM document_instances di JOIN document_templates t ON t.id = di.template_id JOIN commitments c ON c.id = di.commitment_id JOIN offerings o ON o.id = c.offering_id WHERE di.id = ?`).get(id) as any;
-  const { packetName } = await import("@/lib/personalise");
-  return { fileName: packetName(r.n, r.dt, Number(/Fund (\d+)/.exec(r.o)?.[1] ?? 0) || null) };
+  const r = must(await supabase().from("document_instances").select(`
+      document_templates!inner ( display_name, doc_type ),
+      commitments!inner ( offerings!inner ( name ) )`).eq("id", id).maybeSingle()) as any;
+  return { fileName: packetName(r.document_templates.display_name, r.document_templates.doc_type, Number(/Fund (\d+)/.exec(r.commitments.offerings.name)?.[1] ?? 0) || null) };
 }
-void buildInstancePdf;

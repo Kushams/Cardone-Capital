@@ -1,6 +1,7 @@
 "use server";
 import { revalidatePath } from "next/cache";
-import { db } from "@/lib/db";
+import { must, supabase } from "@/lib/supabase";
+import { portalDb } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { regeneratePendingForEntity } from "@/lib/personalise";
 import { PAYMENT_METHODS } from "@/lib/constants";
@@ -10,14 +11,14 @@ const addr = (f: FormData, p: string) => ({ address: s(f, `${p}_address`), addre
 
 async function ownEntity(entityId: number) {
   const u = await requireUser();
-  const e = db().prepare("SELECT id FROM investing_entities WHERE id = ? AND client_id = ?").get(entityId, u.clientId);
+  const e = must(await supabase().from("investing_entities").select("id").eq("id", entityId).eq("client_id", u.clientId).maybeSingle()) as any;
   if (!e) throw new Error("Not found"); // not distinguishable from a missing record
   return u;
 }
 
 export async function setDarkTheme(on: boolean) {
   const u = await requireUser();
-  db().prepare("UPDATE clients SET dark_theme = ? WHERE id = ?").run(on ? 1 : 0, u.clientId);
+  must(await supabase().from("clients").update({ dark_theme: on }).eq("id", u.clientId));
   revalidatePath("/", "layout");
 }
 
@@ -26,7 +27,7 @@ export interface FormState { ok?: boolean; errors?: Record<string, string> }
 export async function updateContact(_: FormState, f: FormData): Promise<FormState> {
   const u = await requireUser();
   const name = s(f, "name"); if (name.length < 2) return { errors: { name: "Please enter your name" } };
-  db().prepare("UPDATE clients SET full_name = ?, phone = ?, address = ? WHERE id = ?").run(name, s(f, "phone") || null, s(f, "address") || null, u.clientId);
+  must(await supabase().from("clients").update({ full_name: name, phone: s(f, "phone") || null, address: s(f, "address") || null }).eq("id", u.clientId));
   revalidatePath("/", "layout"); return { ok: true };
 }
 
@@ -35,8 +36,8 @@ export async function updateEntityTax(entityId: number, _: FormState, f: FormDat
   await ownEntity(entityId);
   const a = addr(f, "tax");
   if (!a.address || !a.city || !a.state || !a.zip) return { errors: { tax: "Please complete the tax address" } };
-  db().prepare("UPDATE investing_entities SET tax_address = ?, is_disregarded = ? WHERE id = ?").run(JSON.stringify(a), f.get("disregarded") ? 1 : 0, entityId);
-  await regeneratePendingForEntity(db(), entityId); // unsigned documents pick up the corrected data; executed ones are untouched
+  must(await supabase().from("investing_entities").update({ tax_address: a, is_disregarded: !!f.get("disregarded") }).eq("id", entityId));
+  await regeneratePendingForEntity(portalDb(), entityId); // unsigned documents pick up the corrected data; executed ones are untouched
   revalidatePath("/investor/settings/profile", "layout"); return { ok: true };
 }
 
@@ -47,20 +48,22 @@ export async function saveDistribution(entityId: number, _: FormState, f: FormDa
   if (!(PAYMENT_METHODS as readonly string[]).includes(method)) errors.payment_method = "Please select a payment method";
   if (!s(f, "payee_name")) errors.payee_name = "Please enter the payee name";
   if (Object.keys(errors).length) return { errors };
-  db().prepare("UPDATE investing_entities SET distribution_method = ? WHERE id = ?").run(JSON.stringify({
-    payment_method: method, bank_account_id: null, is_custodian_fbo: !!f.get("custodian"), payee_name: s(f, "payee_name"), payment_address: addr(f, "pay") }), entityId);
+  must(await supabase().from("investing_entities").update({ distribution_method: {
+    payment_method: method, bank_account_id: null, is_custodian_fbo: !!f.get("custodian"), payee_name: s(f, "payee_name"), payment_address: addr(f, "pay") } }).eq("id", entityId));
   revalidatePath("/investor/settings/profile", "layout"); return { ok: true };
 }
 
 export async function addContact(entityId: number, _: FormState, f: FormData): Promise<FormState> {
   await ownEntity(entityId);
   const name = s(f, "name"); if (!name) return { errors: { name: "Please enter a name" } };
-  db().prepare("INSERT INTO entity_contacts (entity_id, name, emails, phones, is_primary, document_access, required_signer) VALUES (?,?,?,?,?,?,?)")
-    .run(entityId, name, JSON.stringify(s(f, "email") ? [s(f, "email")] : []), JSON.stringify(s(f, "phone") ? [s(f, "phone")] : []), f.get("primary") ? 1 : 0, "All Documents", f.get("signer") ? 1 : 0);
+  must(await supabase().from("entity_contacts").insert({
+    entity_id: entityId, name, emails: s(f, "email") ? [s(f, "email")] : [], phones: s(f, "phone") ? [s(f, "phone")] : [],
+    is_primary: !!f.get("primary"), document_access: "All Documents", required_signer: !!f.get("signer"),
+  }));
   revalidatePath("/investor/settings/profile", "layout"); return { ok: true };
 }
 export async function removeContact(entityId: number, contactId: number) {
   await ownEntity(entityId);
-  db().prepare("DELETE FROM entity_contacts WHERE id = ? AND entity_id = ?").run(contactId, entityId);
+  must(await supabase().from("entity_contacts").delete().eq("id", contactId).eq("entity_id", entityId));
   revalidatePath("/investor/settings/profile", "layout");
 }

@@ -10,16 +10,16 @@ export const metadata: Metadata = { title: pageTitle("Invest") };
 
 export default async function Invest({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ prospectId?: string }> }) {
   const { id } = await params; const sp = await searchParams;
-  const o = getOffering("new", Number(id));
+  const o = await getOffering("new", Number(id));
   if (!o) notFound();
   const u = await requireUser(`/investor/opportunities/${id}/invest`);
-  const prefill = getCommitments(u.clientId).find((c) => String(c.id) === sp.prospectId && c.offeringPortalId === o.portalId)?.desired;
+  const prefill = (await getCommitments(u.clientId)).find((c) => String(c.id) === sp.prospectId && c.offeringPortalId === o.portalId)?.desired;
   return (
     <div>
       <p className="text-sm mb-2"><Link href={`/investor/opportunities/${o.portalId}`}>{o.name}</Link> › Invest</p>
-      <h1 className="text-[30px] md:text-[38px] font-bold text-[var(--heading)] mb-6">Invest in {o.name}</h1>
+      <h1 className="text-[26px] md:text-[33px] font-bold text-[var(--heading)] mb-6">Invest in {o.name}</h1>
       <InvestForm offeringId={o.portalId} offeringName={o.name} minimum={o.minimumInvestment ?? "$200,000"} prefill={prefill}
-        entities={getEntities(u.clientId).map((e) => ({ id: e.id, name: e.name }))} cancelHref={`/investor/opportunities/${o.portalId}`} />
+        entities={(await getEntities(u.clientId)).map((e) => ({ id: e.id, name: e.name }))} cancelHref={`/investor/opportunities/${o.portalId}`} />
     </div>
   );
 }

@@ -21,8 +21,8 @@ function UserMenu({ name }: { name: string }) {
   }, []);
   return (
     <div className="relative" ref={ref}>
-      <button onClick={() => setOpen(!open)} aria-haspopup="menu" aria-expanded={open} className="text-brand text-[17px] md:text-base flex items-center gap-1 cursor-pointer" data-testid="user-menu">
-        {name}<span aria-hidden className="text-[10px] ml-0.5">▼</span>
+      <button onClick={() => setOpen(!open)} aria-haspopup="menu" aria-expanded={open} className="text-brand text-[15px] md:text-base flex items-center gap-1 cursor-pointer" data-testid="user-menu">
+        {name}<span aria-hidden className="text-[9px] ml-0.5">▼</span>
       </button>
       {open && (
         <div role="menu" className="absolute right-0 mt-2 w-44 card py-1 z-50 shadow-lg">
@@ -42,7 +42,7 @@ function NavList({ badge, onNavigate, mobile }: { badge: number; onNavigate?: ()
         const active = n.match.test(path);
         return (
           <Link key={n.href} href={n.href} onClick={onNavigate}
-            className={`flex items-center gap-3 text-white hover:no-underline ${mobile ? "h-[58.500px] px-4 text-xl" : "h-[52px] px-6 text-[17px]"} ${active ? "bg-active" : "hover:bg-white/10"}`}
+            className={`flex items-center gap-3 text-white hover:no-underline ${mobile ? "h-[58.500px] px-4 text-xl" : "h-[52px] px-6 text-[15px]"} ${active ? "bg-active" : "hover:bg-white/10"}`}
             aria-current={active ? "page" : undefined}>
             {n.label}
             {"badge" in n && badge > 0 && <span className="badge-yellow" data-testid="badge-new">{badge}</span>}
@@ -72,10 +72,10 @@ export default function AppShell({ userName, newBadge, children }: { userName: s
         <div className="md:hidden flex items-center justify-between h-[72px] px-4">
           <button onClick={() => setDrawer(!drawer)} aria-label="Menu" aria-expanded={drawer} className="flex flex-col items-center text-brand cursor-pointer" data-testid="hamburger">
             <svg width="26" height="22" viewBox="0 0 26 22" aria-hidden><rect y="1" width="26" height="4.200" rx="1" fill="currentColor" /><rect y="8.900" width="26" height="4.200" rx="1" fill="currentColor" /><rect y="16.800" width="26" height="4.200" rx="1" fill="currentColor" /></svg>
-            <span className="text-[10px] leading-3 mt-0.5">MENU</span>
+            <span className="text-[9px] leading-3 mt-0.5">MENU</span>
           </button>
           <div className="flex items-center gap-5">
-            <a href={KNOWLEDGE_BASE_URL} target="_blank" rel="noreferrer" className="text-brand text-[17px]">Knowledge Base<ExtIcon /></a>
+            <a href={KNOWLEDGE_BASE_URL} target="_blank" rel="noreferrer" className="text-brand text-[15px]">Knowledge Base<ExtIcon /></a>
             <UserMenu name={userName} />
           </div>
         </div>

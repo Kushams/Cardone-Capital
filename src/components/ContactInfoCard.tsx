@@ -8,7 +8,7 @@ export default function ContactInfoCard({ c }: { c: { name: string; phone: strin
   const Row = ({ l, v }: { l: string; v: string }) => <div><dt className="label">{l}</dt><dd className="mb-4">{v || "--"}</dd></div>;
   return (
     <section className="card p-5 md:p-6">
-      <div className="flex items-center justify-between mb-4"><h2 className="text-[22px] md:text-[26px] font-bold">Contact Information</h2>
+      <div className="flex items-center justify-between mb-4"><h2 className="text-[19px] md:text-[23px] font-bold">Contact Information</h2>
         {!edit && <button className="btn btn-secondary" onClick={() => setEdit(true)}>Edit</button>}</div>
       {!edit ? (
         <dl><Row l="Name" v={c.name} /><Row l="Phone" v={c.phone} /><Row l="Address" v={c.address} /><Row l="Login Email" v={c.loginEmail} /><Row l="Email" v={c.email} /><Row l="FinCEN ID" v={c.fincen} /></dl>

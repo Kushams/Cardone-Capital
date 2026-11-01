@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { db } from "@/lib/db";
+import { must, supabase } from "@/lib/supabase";
 import { operatorKeyIsDefault } from "@/lib/operator";
 import { isOperator, inviteAction, reissueAction, revokeAction, commitmentAction, operatorLogout } from "./actions";
 import OperatorLogin from "./OperatorLogin";
@@ -11,9 +11,11 @@ export default async function Operator({ searchParams }: { searchParams: Promise
   const sp = await searchParams;
   const banner = <div className="bg-[#fff3cd] border-b border-[#ffe69c] text-[#664d03] px-4 py-2 text-sm"><b>OPERATOR CONSOLE — STUB.</b> Not part of the client-facing portal. Email sending is simulated (see Outbox).{operatorKeyIsDefault() && <b> Using the default dev passphrase — set OPERATOR_KEY.</b>}</div>;
   if (!(await isOperator())) return <div>{banner}<OperatorLogin hint={operatorKeyIsDefault()} /></div>;
-  const rows = db().prepare(`SELECT a.email, a.status, a.invite_expires_at x, a.token_purpose p, a.activated_at act, (SELECT 1 FROM users u WHERE u.email = a.email) hasUser,
-      (SELECT onboarding_completed_at FROM clients c WHERE c.email = a.email) ob FROM authorized_emails a ORDER BY a.created_at DESC`).all() as any[];
-  const outbox = db().prepare("SELECT id, to_email, subject, body, created_at FROM outbox ORDER BY id DESC LIMIT 10").all() as any[];
+  const sb = supabase();
+  const authRows = must(await sb.from("authorized_emails").select("email, status, invite_expires_at, token_purpose").order("created_at", { ascending: false })) as any[];
+  const obByEmail = new Map((must(await sb.from("clients").select("email, onboarding_completed_at")) as any[]).map((c) => [c.email, c.onboarding_completed_at]));
+  const rows = authRows.map((a) => ({ email: a.email, status: a.status, x: a.invite_expires_at, p: a.token_purpose, ob: obByEmail.get(a.email) ?? null }));
+  const outbox = must(await sb.from("outbox").select("id, to_email, subject, body, created_at").order("id", { ascending: false }).limit(10)) as any[];
   const clients = rows.filter((r) => r.ob);
   const th = "py-2 px-2 text-left";
   return (
@@ -38,7 +40,7 @@ export default async function Operator({ searchParams }: { searchParams: Promise
           <p className="text-sm muted mt-2">Creates the personalised Subscription Booklet + W-9 packet from the client’s own onboarding data and queues them under Documents → Signatures.</p></section>
 
         <section><h2 className="text-2xl font-bold mb-3">Outbox (simulated email)</h2>
-          {outbox.length === 0 ? <p className="muted">Nothing sent.</p> : outbox.map((m) => (<details key={m.id} className="border rounded p-3 mb-2"><summary className="cursor-pointer">{m.created_at} → <b>{m.to_email}</b> — {m.subject}</summary><pre className="whitespace-pre-wrap text-sm mt-2 break-all">{m.body}</pre></details>))}</section>
+          {outbox.length === 0 ? <p className="muted">Nothing sent.</p> : outbox.map((m) => (<details key={m.id} className="border rounded p-3 mb-2"><summary className="cursor-pointer">{String(m.created_at).slice(0, 16).replace("T", " ")} → <b>{m.to_email}</b> — {m.subject}</summary><pre className="whitespace-pre-wrap text-sm mt-2 break-all">{m.body}</pre></details>))}</section>
       </main></div>
   );
 }

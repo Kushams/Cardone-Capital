@@ -1,7 +1,8 @@
 "use server";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { db } from "@/lib/db";
+import { must, supabase } from "@/lib/supabase";
+import { portalDb } from "@/lib/db";
 import { sha256 } from "@/lib/crypto";
 import { operatorKey } from "@/lib/operator";
 import { inviteEmail, normEmail, revokeEmail } from "@/lib/invites";
@@ -23,22 +24,25 @@ export async function operatorLogout() { (await cookies()).delete(COOKIE); redir
 
 export async function inviteAction(f: FormData) {
   await guard();
-  const r = inviteEmail(String(f.get("email") ?? ""), "operator");
+  const r = await inviteEmail(String(f.get("email") ?? ""), "operator");
   redirect("/operator?" + ("error" in r ? "err=" + encodeURIComponent(r.error) : "ok=1"));
 }
-export async function reissueAction(email: string) { await guard(); inviteEmail(email, "operator"); redirect("/operator?ok=1"); }
-export async function revokeAction(email: string) { await guard(); revokeEmail(email); redirect("/operator"); }
+export async function reissueAction(email: string) { await guard(); await inviteEmail(email, "operator"); redirect("/operator?ok=1"); }
+export async function revokeAction(email: string) { await guard(); await revokeEmail(email); redirect("/operator"); }
 
 /** Operator creates a commitment for an ONBOARDED client -> generates their personalised Booklet + W-9 packet and queues them for signature (§17.5). */
 export async function commitmentAction(f: FormData) {
   await guard();
   const email = normEmail(String(f.get("email") ?? "")); const offering = Number(f.get("offering")); const amount = Math.round(Number(String(f.get("amount") ?? "").replace(/[^0-9.]/g, "")));
-  const ent = db().prepare(`SELECT e.id eid FROM investing_entities e JOIN clients c ON c.id = e.client_id WHERE c.email = ? AND c.onboarding_completed_at IS NOT NULL ORDER BY e.id LIMIT 1`).get(email) as any;
+  const ent = must(await supabase().from("investing_entities")
+    .select("id, clients!inner ( email, onboarding_completed_at )")
+    .eq("clients.email", email).not("clients.onboarding_completed_at", "is", null)
+    .order("id").limit(1).maybeSingle()) as any;
   if (!ent) redirect("/operator?err=" + encodeURIComponent("That client has not completed onboarding yet — documents cannot be generated."));
   if (!(amount >= 200000)) redirect("/operator?err=" + encodeURIComponent("Minimum commitment is $200,000."));
-  const o = db().prepare("SELECT id FROM offerings WHERE kind = 'new' AND portal_id = ?").get(offering) as any;
+  const o = must(await supabase().from("offerings").select("id").eq("kind", "new").eq("portal_id", offering).maybeSingle()) as any;
   if (!o) redirect("/operator?err=" + encodeURIComponent("Unknown offering."));
-  const cid = Number(db().prepare("INSERT INTO commitments (investing_entity_id, offering_id, desired_commitment) VALUES (?,?,?)").run(ent.eid, o.id, amount).lastInsertRowid);
-  for (const inst of createSignatureDocuments(db(), cid)) await generateInstance(db(), inst);
+  const c = must(await supabase().from("commitments").insert({ investing_entity_id: ent.id, offering_id: o.id, desired_commitment: amount }).select("id").single()) as any;
+  for (const inst of await createSignatureDocuments(portalDb(), c.id)) await generateInstance(portalDb(), inst);
   redirect("/operator?ok=1");
 }
