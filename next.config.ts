@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const config: NextConfig = {
+  devIndicators: false,
   // Document URLs used by the original portal live outside /investor; keep both working.
   async rewrites() {
     return [

@@ -33,8 +33,18 @@ CREATE TABLE IF NOT EXISTS authorized_emails (
   status TEXT NOT NULL DEFAULT 'INVITED' CHECK (status IN ('INVITED','ACTIVE','REVOKED')),
   invite_token_hash TEXT,
   invite_expires_at TEXT,
+  token_purpose TEXT,           -- 'INVITE' | 'RESET' (single-use, 48h)
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   activated_at TEXT
+);
+
+-- STUB: no email is ever sent. Messages that would be emailed are recorded here and shown in the operator console.
+CREATE TABLE IF NOT EXISTS outbox (
+  id INTEGER PRIMARY KEY,
+  to_email TEXT NOT NULL,
+  subject TEXT NOT NULL,
+  body TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
 CREATE TABLE IF NOT EXISTS users (
