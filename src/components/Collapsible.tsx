@@ -10,7 +10,7 @@ export default function Collapsible({ title, headingLevel = 2, action, defaultOp
       <div className="flex items-center justify-between gap-3">
         <button className="flex items-center gap-3 text-left cursor-pointer" aria-expanded={open} onClick={() => setOpen(!open)}>
           <svg width="14" height="9" viewBox="0 0 14 9" aria-hidden className={`transition-transform text-[#6c757d] ${open ? "" : "-rotate-90"}`}><path d="M0 0h14L7 9z" fill="currentColor" /></svg>
-          <H className="text-[22px] md:text-[26px] font-bold">{title}</H>
+          <H className="text-[19px] md:text-[23px] font-bold">{title}</H>
         </button>
         {action}
       </div>

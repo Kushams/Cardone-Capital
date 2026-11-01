@@ -35,13 +35,13 @@ export default async function Dashboard() {
 
   return (
     <div className="max-w-[1180px]">
-      <PageTitle right={<div className="flex gap-6 pt-3 text-[16px] shrink-0">
+      <PageTitle right={<div className="flex gap-6 pt-3 text-[14px] shrink-0">
         <a href="https://cardonecapital.com/" target="_blank" rel="noreferrer">Cardone Capital Website</a>
         <a href={REFER}>Refer a Friend</a></div>}>Dashboard</PageTitle>
 
       <div className="space-y-6">
         <Card>
-          <h2 className="flex items-center gap-2 text-[22px] md:text-[26px] font-bold">
+          <h2 className="flex items-center gap-2 text-[19px] md:text-[23px] font-bold">
             <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden fill="#fcc43e"><path d="M12 2a6 6 0 0 0-6 6v3.600L4 15v2h16v-2l-2-3.400V8a6 6 0 0 0-6-6zm-2.500 17a2.500 2.500 0 0 0 5 0z" /></svg>
             Action Items
           </h2>
@@ -64,7 +64,7 @@ export default async function Dashboard() {
         </Card>
 
         <Card>
-          <h2 className="text-[22px] md:text-[26px] font-bold text-active">Welcome to your Investor Portal</h2>
+          <h2 className="text-[19px] md:text-[23px] font-bold text-active">Welcome to your Investor Portal</h2>
           <p className="mt-3">We are pleased to provide secure access to your investments, including:</p>
           <ul className="list-disc pl-8 mt-2 space-y-0.5">
             {["Position Details", "Asset Information", "Tax Forms", "Reports & Documents", "Distributions", "Contributions"].map((x) => <li key={x}>{x}</li>)}
@@ -94,7 +94,7 @@ export default async function Dashboard() {
         )}
 
         <section>
-          <h2 className="text-[26px] font-bold mb-4">Recent Offerings</h2>
+          <h2 className="text-[23px] font-bold mb-4">Recent Offerings</h2>
           <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3" data-testid="recent-grid">
             {recents.map((o) => <RecentCard key={o.portalId} o={o} />)}
           </div>

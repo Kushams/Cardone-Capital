@@ -34,7 +34,7 @@ export default async function SignPage({ params, searchParams }: { params: Promi
 
   return (
     <div className="max-w-[900px]">
-      <h1 className="text-[32px] md:text-[40px] font-bold text-[var(--heading)] mb-6">Please Review and Sign</h1>
+      <h1 className="text-[28px] md:text-[35px] font-bold text-[var(--heading)] mb-6">Please Review and Sign</h1>
 
       {r.status === "SIGNED" ? (
         <Card>
@@ -62,7 +62,7 @@ export default async function SignPage({ params, searchParams }: { params: Promi
       ) : (
         <Card>
           <h2 className="text-2xl font-bold">Electronic Communications Consent</h2>
-          <div tabIndex={0} aria-label="Electronic Communications Consent document" className="mt-4 h-[340px] overflow-y-auto border hair rounded p-4 text-[15px] leading-7 bg-[var(--card)]" data-testid="consent-frame">
+          <div tabIndex={0} aria-label="Electronic Communications Consent document" className="mt-4 h-[340px] overflow-y-auto border hair rounded p-4 text-[13px] leading-7 bg-[var(--card)]" data-testid="consent-frame">
             <p className="text-sm font-bold mb-3" style={{ color: "#b45309" }}>PLACEHOLDER — the firm’s own electronic-records-and-signatures consent text was not included in the kit. Insert it here (do not invent legal wording). Section structure below follows the original, in order.</p>
             {CONSENT_SECTIONS.map((s, i) => (<section key={s} className="mb-4"><h3 className="font-bold">{s}</h3><p className="muted">[Firm text for section {i + 1} goes here.]</p></section>))}
             <section className="mb-4"><h3 className="font-bold">Acceptance and Consent</h3>

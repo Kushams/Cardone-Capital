@@ -18,11 +18,11 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       <main className="flex-1 flex items-center justify-center px-4 pt-16 pb-8">
         <div className="w-full max-w-[470px] bg-white border border-[#dee2e6] rounded-[4px] px-5 py-8 sm:px-9">
           <div className="flex justify-center text-[#102a52]"><Logo height={78} /></div>
-          <h1 className="text-[24px] font-light text-center mt-9">Log in to your Investor Portal</h1>
+          <h1 className="text-[21px] font-light text-center mt-9">Log in to your Investor Portal</h1>
           <LoginForm returnTo={ret} />
         </div>
       </main>
-      <footer className="text-center text-[17px] leading-7 pb-12 sm:pb-10 pt-4">
+      <footer className="text-center text-[15px] leading-7 pb-12 sm:pb-10 pt-4">
         <div>{FIRM.name}</div><div>{FIRM.phone}</div><div>{FIRM.email}</div>
       </footer>
     </div>

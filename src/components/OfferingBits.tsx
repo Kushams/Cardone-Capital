@@ -24,7 +24,7 @@ export function RecentCard({ o }: { o: Offering }) {
         <h3 className="text-xl font-bold"><Link href={href} className="!text-[var(--text)]">{o.name}</Link></h3>
         <p className="muted mt-1">Funded on {o.fundedOn}</p>
         {rows.length > 0 && (
-          <dl className="mt-3 text-left text-[15px]">
+          <dl className="mt-3 text-left text-[13px]">
             {rows.map(([l, v]) => <div key={l} className="flex justify-between py-0.5"><dt className="muted">{l}</dt><dd className="font-semibold">{v}</dd></div>)}
           </dl>
         )}
@@ -45,7 +45,7 @@ export function NewCard({ o }: { o: Offering }) {
       <div className="p-5 flex flex-col flex-1">
         <h2 className="text-xl font-bold text-center">{o.name}</h2>
         {o.isNew && <div className="text-center mt-2"><span className="inline-block bg-badge text-[#212529] text-xs font-bold px-3 py-1 rounded-full tracking-wide" data-testid="new-pill">NEW</span></div>}
-        <dl className="mt-4 text-[15px]">
+        <dl className="mt-4 text-[13px]">
           {rows.filter(([, v]) => v).map(([l, v]) => <div key={l} className="flex justify-between py-1"><dt className="muted">{l}</dt><dd className="font-semibold">{v}</dd></div>)}
         </dl>
         <div className="mt-auto pt-5 text-center"><Link href={href} className="btn btn-secondary px-8">View Offering</Link></div>

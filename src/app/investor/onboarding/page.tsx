@@ -18,7 +18,7 @@ export default async function Onboarding() {
         <form action={logoutAction}><button className="text-brand cursor-pointer">Log Out</button></form>
       </header>
       <main className="max-w-[820px] mx-auto px-4 py-8">
-        <h1 className="text-[32px] md:text-[38px] font-bold text-[var(--heading)]">Welcome to your Investor Portal</h1>
+        <h1 className="text-[28px] md:text-[33px] font-bold text-[var(--heading)]">Welcome to your Investor Portal</h1>
         <p className="mt-2 mb-6">Please complete your investor profile. This information is used to prepare your investment documents, so it must match your legal records.</p>
         <div className="card p-6"><OnboardingForm email={u.email} /></div>
       </main>
