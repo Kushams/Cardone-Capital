@@ -6,6 +6,7 @@ import { requireUser } from "@/lib/auth";
 import { getClient, getCommitments, getOffering, getPendingSignatures } from "@/lib/queries";
 import { findTemplateByDisplay, templateHref } from "@/lib/docs";
 import { fmtUSD } from "@/lib/catalog";
+import { heroFor } from "@/lib/images";
 import Card from "@/components/Card";
 import Photo from "@/components/Photo";
 import Disclosure from "@/components/Disclosure";
@@ -49,7 +50,7 @@ export default async function OfferingDetail({ params }: { params: Promise<{ id:
       <div className="grid gap-6 lg:grid-cols-[1fr_340px] items-start">
         <div className="space-y-6 min-w-0 lg:col-start-1">
           <div className="card overflow-hidden relative">
-            <Photo seed={o.portalId} tag={o.heroTag} label={`${o.name} hero`} />
+            <Photo seed={o.portalId} tag={o.heroTag} src={heroFor(o)} label={`${o.name} hero`} />
             <button aria-label="Go to Slide 1" className="absolute bottom-3 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white/90 border border-black/30" />
           </div>
 

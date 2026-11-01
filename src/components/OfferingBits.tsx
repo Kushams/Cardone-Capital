@@ -19,7 +19,7 @@ export function RecentCard({ o }: { o: Offering }) {
   const rows = perfRows(o.performance);
   return (
     <article className="card overflow-hidden flex flex-col">
-      <Link href={href}><Photo seed={o.portalId} tag={o.heroTag} /></Link>
+      <Link href={href}><Photo seed={o.portalId} tag={o.heroTag} src={o.cardImage} label={o.name} /></Link>
       <div className="p-5 flex flex-col flex-1 text-center">
         <h3 className="text-xl font-bold"><Link href={href} className="!text-[var(--text)]">{o.name}</Link></h3>
         <p className="muted mt-1">Funded on {o.fundedOn}</p>
@@ -41,7 +41,7 @@ export function NewCard({ o }: { o: Offering }) {
   const href = `/investor/opportunities/${o.portalId}`;
   return (
     <article className="card overflow-hidden flex flex-col">
-      <Link href={href}><Photo seed={o.portalId} tag={o.heroTag} /></Link>
+      <Link href={href}><Photo seed={o.portalId} tag={o.heroTag} src={o.cardImage} label={o.name} /></Link>
       <div className="p-5 flex flex-col flex-1">
         <h2 className="text-xl font-bold text-center">{o.name}</h2>
         {o.isNew && <div className="text-center mt-2"><span className="inline-block bg-badge text-[#212529] text-xs font-bold px-3 py-1 rounded-full tracking-wide" data-testid="new-pill">NEW</span></div>}

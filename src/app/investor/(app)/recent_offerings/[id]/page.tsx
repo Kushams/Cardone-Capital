@@ -52,7 +52,7 @@ export default async function RecentOffering({ params }: { params: Promise<{ id:
                   <svg className="inline -mt-1" width="14" height="14" viewBox="0 0 24 24" aria-hidden fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.500A2.500 2.500 0 1 1 12 6.500a2.500 2.500 0 0 1 0 5z" /></svg> Map</a></p>
                 <div className="mt-4 grid md:grid-cols-[200px_1fr] gap-6">
                   <div>
-                    <Link href={`/investor/recent_offerings/${o.portalId}/assets/${a.id}/photos`} aria-label={`Photo of ${a.name}`}><Photo seed={a.id} className="rounded" label={`Photo of ${a.name}`} /></Link>
+                    <Link href={`/investor/recent_offerings/${o.portalId}/assets/${a.id}/photos`} aria-label={`Photo of ${a.name}`}><Photo seed={a.id} className="rounded" src={a.thumb} label={`Photo of ${a.name}`} /></Link>
                     <p className="muted text-sm mt-1">{a.photos} photo{a.photos === 1 ? "" : "s"}</p>
                   </div>
                   <dl className="grid sm:grid-cols-2 gap-x-8">

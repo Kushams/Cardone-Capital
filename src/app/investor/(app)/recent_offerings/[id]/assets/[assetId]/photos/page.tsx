@@ -11,5 +11,5 @@ export default async function Photos({ params }: { params: Promise<{ id: string;
   const o = getOffering("recent", Number(id));
   const a = o?.assets?.find((x) => x.id === Number(assetId));
   if (!o || !a) notFound();
-  return <Gallery closeHref={`/investor/recent_offerings/${o.portalId}`} count={a.photos} seed={a.id} name={a.name} />;
+  return <Gallery closeHref={`/investor/recent_offerings/${o.portalId}`} count={a.photos} seed={a.id} name={a.name} cover={a.thumb} />;
 }

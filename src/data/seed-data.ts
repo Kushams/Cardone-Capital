@@ -4,6 +4,7 @@
  * own text assets. All demo investors are FICTIONAL (see DEMO_* below); nothing here comes from the sample account.
  */
 import type { Asset, Offering, Performance } from "./types";
+import imageMap from "../../images/image-map.json";
 
 export const STD_DISCLOSURE =
   "This communication is for informational purposes only and is not an offer to sell securities. Investing in real estate involves risk, including loss of principal. See investor.gov and the firm's disclosures page for important information.";
@@ -191,3 +192,21 @@ export const DOC_PREVIEW: Record<number, string[]> = {
 /** The unnamed first column shows a blue dot on 7 of 19 rows (all Fund 32 rows, Fund 31 Wire Instructions + Operating Agreement). Unlabelled, as in the original. */
 export const dotRule = (offeringPortalId: number | null, docType: string) =>
   offeringPortalId === 88 || (offeringPortalId === 87 && (docType === "WIRE_INSTRUCTIONS" || docType === "OPERATING_AGREEMENT"));
+
+
+// ---------------- REAL IMAGES — assigned from images/image-map.json (source of truth for which file fills which slot) ----------------
+export const IMG_BASE = "/images/";
+(function applyImageMap() {
+  const byName = (list: Offering[], n: string) => list.find((o) => o.name === n);
+  for (const e of (imageMap as { images: any[] }).images) {
+    if (!e.offering || String(e.status ?? "").startsWith("pending")) continue; // pending hero files are picked up automatically once they exist (see heroFor)
+    const src = IMG_BASE + e.file;
+    if (e.file.startsWith("dashboard-recent-offerings/")) { const o = byName(RECENT_OFFERINGS, e.offering); if (o) o.cardImage = src; }
+    else if (e.file.startsWith("new-offerings/")) { const o = byName(NEW_OFFERINGS, e.offering); if (o) o.cardImage = src; }
+    else if (e.file.startsWith("recent-offerings/")) {
+      const o = byName(RECENT_OFFERINGS, e.offering); const a = o?.assets?.find((x) => x.name === e.property);
+      if (a) a.thumb = src;
+    }
+  }
+  for (const o of NEW_OFFERINGS) o.heroSlug = `fund-${o.name.match(/Fund (\d+)/)![1]}`;
+})();

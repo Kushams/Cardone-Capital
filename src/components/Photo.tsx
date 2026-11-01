@@ -1,5 +1,10 @@
-/** Neutral placeholder artwork (no property photos were supplied in the kit). Drop real images into the same slots later. */
-export default function Photo({ seed, tag, className = "", label }: { seed: number; tag?: string; className?: string; label?: string }) {
+/** Photo slot. With `src` it renders the real image (object-fit: cover in the same slot geometry the placeholder used);
+ *  without one it falls back to neutral placeholder artwork (used only for gallery slides whose photos have not been delivered yet). */
+export default function Photo({ seed, tag, className = "", label, src, fit = "cover" }: { seed: number; tag?: string; className?: string; label?: string; src?: string; fit?: "cover" | "contain" }) {
+  if (src) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={src} alt={label ?? ""} loading="lazy" decoding="async" className={`block w-full aspect-[600/340] ${fit === "contain" ? "object-contain" : "object-cover"} ${className}`} />;
+  }
   const hues = [[205, 40], [195, 45], [215, 35], [180, 40], [225, 30]][seed % 5];
   const c1 = `hsl(${hues[0]} ${hues[1]}% 62%)`, c2 = `hsl(${hues[0] + 15} ${hues[1] + 10}% 36%)`;
   const bars = Array.from({ length: 9 }, (_, i) => ({ x: 20 + i * 62, h: 70 + ((seed * 37 + i * 53) % 110), w: 46 }));

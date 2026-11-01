@@ -4,11 +4,14 @@ export interface Asset {
   assetType: string; propertyClass: "A"; units?: number; squareFeet?: number; stories?: number;
   parking?: number; yearBuilt?: number; acquired?: string; landAcres?: number;
   description?: string; // optional distinct description under the fact grid
+  thumb?: string; // real property thumbnail (images/recent-offerings/<fund>/<property>-thumb.*) — also the gallery cover/first image
 }
 export interface Performance { irr?: string; coc?: string; multiple?: string; pref?: string }
 export interface Offering {
   kind: "new" | "recent"; portalId: number; slug: string; name: string; sortOrder: number;
   isNew?: boolean; inProgress?: boolean; heroTag?: string;
+  cardImage?: string; // real card photo (dashboard Recent Offerings / New Offerings list)
+  heroSlug?: string;  // images/new-offerings/<heroSlug>-hero.* when it exists; until then the card photo fills the hero slot
   pricePerShare?: string; targetRaise?: string; minimumInvestment?: string; investmentPeriod?: string;
   preferredReturn?: string; distributionSchedule?: string;
   fundedOn?: string; performance?: Performance;

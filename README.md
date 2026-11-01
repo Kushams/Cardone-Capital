@@ -15,6 +15,7 @@ Operator stub: `/operator` (dev passphrase `operator-dev-key`; set `OPERATOR_KEY
 ## Tests / checks
 | Command | What it proves |
 |---|---|
+| `npm run check:images` | every image-map entry exists, every card/thumbnail slot has its file, no delivered file unused |
 | `npm run check:masters` | every master in the template store: no sample-investor identifiers (word-boundary denylist + optional git-ignored `storage/.denylist-extra`), no PDF metadata, nothing outside `storage/templates/`, never `signatures-pending/` |
 | `npm run test:personalisation` | §17-D: Booklet = master+1 pages, W-9 packet = 6+1; Summary values/positions; in-body fills; no cross-entity data; no sample identifiers; metadata stripped (70 checks) |
 | `node tests/e2e/access-model.js screenshots` | §18 end-to-end in a browser (needs the dev server + Playwright): no sign-up, generic responses, hashed single-use 48h link, client-chosen password, onboarding gate, encrypted Tax ID, isolation, revoke (41 checks) |
@@ -31,7 +32,7 @@ Payments / “I sent my capital”, Plaid bank linking, e-signature capture (typ
 
 ## Decisions & deviations — please review
 1. **Consent text is a placeholder.** The kit has no electronic-consent wording and §10 forbids inventing legal text; the page has the specified section structure with clearly marked placeholders. Supply the firm's text.
-2. **Logo and property photos are recreations/placeholders** (no artwork in the kit). Slots are `components/Logo.tsx` and `components/Photo.tsx`. Font: Nunito Sans (closest free match to the original's humanist sans; the original face could not be identified).
+2. **Real images** are in `images/` (delivered as-is, assigned by `images/image-map.json`; served from `/images/*`). Logo, 24 Dashboard cards, 4 New Offerings cards and 41 property thumbnails are wired. **Pending:** the 4 detail-page hero files (`images/new-offerings/fund-NN-hero.*`) — until they arrive the fund's card photo fills the hero slot, and a hero file dropped into that folder is picked up automatically (`src/lib/images.ts`). **Pending:** gallery photos 2…N (slide 1 is the thumbnail; later slides show placeholders). Font: Nunito Sans (closest free match; the original face could not be identified).
 3. **Personalised docs also carry a diagonal entity-name watermark on every page** — found by inspecting the reference sample; the prompt's text (“everything else byte-identical”) omits it. Reproduced for Booklet and W-9 packet. Other fills (page 14 name/TIN/address/phone/email, page 22 amount, signature page address/email, K-1 name/email/phone) are anchored by label text so they work on all four fund booklets (Fund 32's is one page longer).
 4. **Tax ID “Show” link vs. §17.** §14 says Show reveals the Tax ID; §17 (binding) says never display more than the last 4 anywhere. I followed §17: “…1234” plus a Show link that explains the full number is never displayed. Tell me if you want a reveal.
 5. **Tax ID is stored as digits only** (dashes stripped), matching how the reference Summary page prints it.
