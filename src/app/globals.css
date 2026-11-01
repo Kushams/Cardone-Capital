@@ -27,6 +27,7 @@
   --btn2-text: #212529;
   --header: #ffffff;
   --heading: #343a40;
+  --logo: #112847;
 }
 html[data-theme="dark"] {
   --bg: #14181d;
@@ -38,6 +39,7 @@ html[data-theme="dark"] {
   --btn2-text: #e8ecef;
   --header: #1a2027;
   --heading: #f1f3f5;
+  --logo: #ffffff;
 }
 
 @layer base {
