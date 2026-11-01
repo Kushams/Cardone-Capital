@@ -5,6 +5,7 @@ import path from "node:path";
 import { openDb } from "../src/lib/db";
 import { encryptSecret, hashPassword } from "../src/lib/crypto";
 import { ALL_OFFERINGS, DEMO } from "../src/data/seed-data";
+import { createSignatureDocuments } from "../src/lib/instances";
 import { classify, isoFromMDY, offeringInternalId } from "../src/lib/catalog";
 
 const root = process.cwd();
@@ -61,7 +62,10 @@ for (const c of DEMO.clients) {
   insUser.run(cid, c.email, hashPassword(DEMO.password));
   const eid = Number(insEnt.run(cid, c.entity.name, c.entity.entity_type, c.entity.holding_title, JSON.stringify(c.entity.tax_address), encryptSecret(c.entity.tax_id), c.entity.k1_name).lastInsertRowid);
   insContact.run(eid, c.full_name, JSON.stringify([c.email]), JSON.stringify([c.phone]));
-  insCommit.run(eid, 81, c.commitment);
+  const commitId = Number(insCommit.run(eid, 81, c.commitment).lastInsertRowid);
+  // First demo client gets the same signature-page ids/dates the portal shows (31731 / 31578); the rest get fresh ids.
+  const first = c === DEMO.clients[0];
+  createSignatureDocuments(db, commitId, first ? { bookletPageId: 31731, w9PageId: 31578, bookletRequested: "2026-08-07", w9Requested: "2026-08-03" } : { bookletRequested: "2026-08-07", w9Requested: "2026-08-03" });
 }
 // an invited-but-not-onboarded email (allowlist demo)
 db.prepare("INSERT INTO authorized_emails (email, invited_by, status) VALUES (?, 'seed', 'INVITED')").run(DEMO.invitedNotOnboarded);

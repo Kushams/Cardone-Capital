@@ -5,7 +5,7 @@
  */
 import type { Asset, Offering, Performance } from "./types";
 
-const STD_DISCLOSURE =
+export const STD_DISCLOSURE =
   "This communication is for informational purposes only and is not an offer to sell securities. Investing in real estate involves risk, including loss of principal. See investor.gov and the firm's disclosures page for important information.";
 
 // ---------------- NEW OFFERINGS (4 cards; sidebar badge counts NEW flags = 3) ----------------
@@ -14,10 +14,10 @@ export const NEW_OFFERINGS: Offering[] = [
     kind: "new", portalId: 81, slug: "fund-29-opportunities-81", name: "Cardone Equity Fund 29, LLC", sortOrder: 1,
     inProgress: true, heroTag: "10X NAPLES + BITCOIN FUND",
     targetRaise: "$53,000,000", minimumInvestment: "$200,000", investmentPeriod: "10 Years", preferredReturn: "8.00%", distributionSchedule: "Monthly",
-    description: "The 10X Naples + Bitcoin Fund: acquisition of Orchid Run, a 282-unit, 2015-vintage, all-concrete multifamily asset in Central Naples, combined with Bitcoin exposure. " + STD_DISCLOSURE,
+    description: "The 10X Naples + Bitcoin Fund: acquisition of Orchid Run, a 282-unit, 2015-vintage, all-concrete multifamily asset in Central Naples, combined with Bitcoin exposure. ",
     documentFiles: [
       "EXECUTED Cardone Equity Fund 29 - Operating Agreement - Second Amended & Restated - FINAL - 07-22-26 (1).pdf",
-      "10X-Naples-Investment-Memorandum-w-Financials.pdf",
+      "10X-Naples-Investment-Memorandum-w/ Financials.pdf",
       "Cardone Equity Fund 29 - Subscription Booklet - FINAL - 07-22-26.pdf",
       "Cardone Equity Fund 29 - PPM (corresponds to 2nd Amended & Restated OA) - FINAL - 07-22-26.pdf",
       "2026-04-17-10X-NAPLES-IM-V7.pdf",
@@ -27,7 +27,7 @@ export const NEW_OFFERINGS: Offering[] = [
   {
     kind: "new", portalId: 86, slug: "fund-30-opportunities-86", name: "Cardone Equity Fund 30, LLC", sortOrder: 2, isNew: true,
     targetRaise: "$150,000,000", minimumInvestment: "$200,000", investmentPeriod: "7-10 Years", distributionSchedule: "Monthly",
-    description: "A 608-unit multifamily acquisition on roughly 52 acres of waterfront land on Old Tampa Bay in South Tampa, positioned as a cash-flow asset (targeted ~5% cash flow), with renovated interiors, two resort-style pools, a two-storey fitness centre and direct bay access with a kayak launch. " + STD_DISCLOSURE,
+    description: "A 608-unit multifamily acquisition on roughly 52 acres of waterfront land on Old Tampa Bay in South Tampa, positioned as a cash-flow asset (targeted ~5% cash flow), with renovated interiors, two resort-style pools, a two-storey fitness centre and direct bay access with a kayak launch. ",
     property: {
       name: "10X Westshore South", address: "6301 S West Shore Blvd, Tampa, FL 33616", hasMap: true,
       facts: [
@@ -46,7 +46,7 @@ export const NEW_OFFERINGS: Offering[] = [
   {
     kind: "new", portalId: 87, slug: "fund-31-opportunities-87", name: "Cardone Equity Fund 31, LLC", sortOrder: 3, isNew: true, heroTag: "BITCOIN",
     targetRaise: "$150,000,000", minimumInvestment: "$200,000", investmentPeriod: "7-10 Years", distributionSchedule: "Monthly",
-    description: "A vehicle for accredited investors targeting up to $150M of commitments, primarily multifamily assets in high-growth markets across the risk spectrum, plus opportunistic commercial real estate. " + STD_DISCLOSURE,
+    description: "A vehicle for accredited investors targeting up to $150M of commitments, primarily multifamily assets in high-growth markets across the risk spectrum, plus opportunistic commercial real estate. ",
     trailingBlock: { heading: "Cardone Equity Fund 31, LLC", facts: [{ label: "Asset Type", value: "Mixed-Use" }, { label: "Year Built", value: "2026" }] },
     documentFiles: [
       "Cardone Equity Fund 31 - PPM - FINAL - August 2026.pdf",
@@ -57,7 +57,7 @@ export const NEW_OFFERINGS: Offering[] = [
   {
     kind: "new", portalId: 88, slug: "fund-32-opportunities-88", name: "Cardone Equity Fund 32, LLC", sortOrder: 4, isNew: true,
     pricePerShare: "$1,000", targetRaise: "$150,000,000", minimumInvestment: "$200,000", investmentPeriod: "7-10 Years", distributionSchedule: "Monthly",
-    description: "Acquisition of a 587-unit waterfront multifamily community built in 2020 on about 10 acres on Old Tampa Bay in South Tampa. Class A and cash-flow focused, with two pools, a two-storey fitness centre, yoga/spin studios and a clubhouse, next to 10X Westshore South. " + STD_DISCLOSURE,
+    description: "Acquisition of a 587-unit waterfront multifamily community built in 2020 on about 10 acres on Old Tampa Bay in South Tampa. Class A and cash-flow focused, with two pools, a two-storey fitness centre, yoga/spin studios and a clubhouse, next to 10X Westshore South. ",
     documentFiles: [
       "Cardone Equity Fund 32 - PPM - FINAL - 09-01-26.pdf",
       "Cardone Equity Fund 32 (Class A) - Subscription Booklet (Sept 2026) - FINAL - 09-01-26.pdf",
