@@ -13,3 +13,4 @@ storage/.dev-key
 signatures-pending/
 **/signatures-pending/**
 screenshots/work
+backup/
