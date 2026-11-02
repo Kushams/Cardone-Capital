@@ -101,7 +101,7 @@ export default function DocumentsView({ initialTab, all, funds, sigs, entities, 
         <section className="card p-5 md:p-6">
           <div className="flex items-center justify-between gap-3 mb-5">
             <h2 className="text-[21px] md:text-[24px] font-bold">All Documents</h2>
-            <button className="btn btn-secondary" onClick={() => setNote("STUB: “Download All” is not connected in this build — no archive is generated.")}>Download All</button>
+            <a className="btn btn-secondary" href="/investor/files/download-all">Download All</a>
           </div>
           <div className="grid gap-4 md:flex md:gap-6 mb-4">
             <Filter label="Investment" value={inv} onChange={setInv} options={funds.map((f) => f.name)} />
@@ -124,7 +124,7 @@ export default function DocumentsView({ initialTab, all, funds, sigs, entities, 
       )}
 
       {tab === "signatures" && <Pending sigs={sigs} />}
-      {upload && <UploadModal onClose={() => setUpload(false)} onStub={(m) => { setUpload(false); setNote(m); }} />}
+      {upload && <UploadModal onClose={() => setUpload(false)} onDone={(m) => { setUpload(false); setNote(m); }} />}
     </div>
   );
 }

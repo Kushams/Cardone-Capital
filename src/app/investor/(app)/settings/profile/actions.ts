@@ -5,6 +5,9 @@ import { portalDb } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { regeneratePendingForEntity } from "@/lib/personalise";
 import { PAYMENT_METHODS } from "@/lib/constants";
+import { encryptSecret } from "@/lib/crypto";
+import { abaValid } from "@/lib/banks";
+import { logActivity } from "@/lib/activity";
 
 const s = (f: FormData, k: string) => String(f.get(k) ?? "").trim();
 const addr = (f: FormData, p: string) => ({ address: s(f, `${p}_address`), address2: s(f, `${p}_address2`), city: s(f, `${p}_city`), state: s(f, `${p}_state`), zip: s(f, `${p}_zip`), country: s(f, `${p}_country`) || "United States" });
@@ -47,10 +50,60 @@ export async function saveDistribution(entityId: number, _: FormState, f: FormDa
   const errors: Record<string, string> = {};
   if (!(PAYMENT_METHODS as readonly string[]).includes(method)) errors.payment_method = "Please select a payment method";
   if (!s(f, "payee_name")) errors.payee_name = "Please enter the payee name";
+  // A chosen bank account must belong to THIS entity.
+  let bankAccountId: number | null = null;
+  const rawBank = Number(f.get("bank_account_id") || 0);
+  if (rawBank) {
+    const acct = must(await supabase().from("bank_accounts").select("id").eq("id", rawBank).eq("entity_id", entityId).maybeSingle()) as any;
+    if (!acct) errors.bank_account_id = "That bank account doesn't belong to this entity";
+    else bankAccountId = rawBank;
+  }
   if (Object.keys(errors).length) return { errors };
   must(await supabase().from("investing_entities").update({ distribution_method: {
-    payment_method: method, bank_account_id: null, is_custodian_fbo: !!f.get("custodian"), payee_name: s(f, "payee_name"), payment_address: addr(f, "pay") } }).eq("id", entityId));
+    payment_method: method, bank_account_id: bankAccountId, is_custodian_fbo: !!f.get("custodian"), payee_name: s(f, "payee_name"), payment_address: addr(f, "pay") } }).eq("id", entityId));
   revalidatePath("/investor/settings/profile", "layout"); return { ok: true };
+}
+
+/** Secure manual bank entry (audit item 6): routing + account numbers are stored
+ * AES-256-GCM encrypted (same protection as Tax IDs) and only ever shown masked.
+ * Plaid can write into this same table later once the firm opens a Plaid account. */
+export async function addBankAccount(_: FormState, f: FormData): Promise<FormState> {
+  const u = await requireUser();
+  const entityId = Number(f.get("entity_id") || 0);
+  const e = must(await supabase().from("investing_entities").select("id, name").eq("id", entityId).eq("client_id", u.clientId).maybeSingle()) as any;
+  if (!e) return { errors: { bank: "Please choose one of your investing entities" } };
+  const errors: Record<string, string> = {};
+  const nickname = s(f, "nickname"), bankName = s(f, "bank_name"), type = s(f, "account_type");
+  const routing = s(f, "routing").replace(/\D/g, ""), account = s(f, "account").replace(/[\s-]/g, ""), confirm = s(f, "account_confirm").replace(/[\s-]/g, "");
+  if (!nickname) errors.nickname = "Give the account a nickname";
+  if (!bankName) errors.bank_name = "Enter the bank name";
+  if (!["Checking", "Savings"].includes(type)) errors.account_type = "Choose Checking or Savings";
+  if (!abaValid(routing)) errors.routing = "That routing number doesn't look right — US routing numbers are 9 digits";
+  if (!/^\d{4,17}$/.test(account)) errors.account = "Account numbers are 4–17 digits";
+  if (account && confirm !== account) errors.account_confirm = "The account numbers don't match";
+  if (Object.keys(errors).length) return { errors };
+  must(await supabase().from("bank_accounts").insert({
+    entity_id: entityId, nickname, bank_name: bankName, account_type: type,
+    routing_encrypted: encryptSecret(routing), account_encrypted: encryptSecret(account),
+  }));
+  await logActivity({ actorType: "CLIENT", actorEmail: u.email, clientEmail: u.email, action: "BANK_ACCOUNT_ADDED", detail: `${nickname} (${bankName}) for ${e.name}, acct ••••${account.slice(-4)}` });
+  revalidatePath("/investor/settings/profile", "layout"); return { ok: true };
+}
+
+export async function removeBankAccount(accountId: number) {
+  const u = await requireUser();
+  const acct = must(await supabase().from("bank_accounts").select("id, entity_id, nickname, investing_entities!inner ( client_id )").eq("id", accountId).maybeSingle()) as any;
+  if (!acct || (acct.investing_entities as any).client_id !== u.clientId) throw new Error("Not found");
+  must(await supabase().from("bank_accounts").delete().eq("id", accountId));
+  // Clear any distribution selection pointing at the removed account.
+  const ents = must(await supabase().from("investing_entities").select("id, distribution_method").eq("client_id", u.clientId)) as any[];
+  for (const en of ents) {
+    if (en.distribution_method?.bank_account_id === accountId) {
+      must(await supabase().from("investing_entities").update({ distribution_method: { ...en.distribution_method, bank_account_id: null } }).eq("id", en.id));
+    }
+  }
+  await logActivity({ actorType: "CLIENT", actorEmail: u.email, clientEmail: u.email, action: "BANK_ACCOUNT_REMOVED", detail: acct.nickname ?? String(accountId) });
+  revalidatePath("/investor/settings/profile", "layout");
 }
 
 export async function addContact(entityId: number, _: FormState, f: FormData): Promise<FormState> {
