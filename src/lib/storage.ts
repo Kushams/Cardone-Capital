@@ -22,7 +22,7 @@ function storagePath(rel: string): string {
   if (full !== base && !full.startsWith(base + path.sep)) throw new Error("path outside storage/: " + rel);
   return full;
 }
-const BUCKETS = ["templates", "generated", "executed"] as const;
+const BUCKETS = ["templates", "generated", "executed", "signatures", "uploads"] as const;
 type Bucket = (typeof BUCKETS)[number];
 
 function locate(rel: string): { bucket: Bucket; key: string } | null {
@@ -51,7 +51,8 @@ export async function writePortalFile(rel: string, bytes: Uint8Array): Promise<v
   const loc = locate(rel);
   if (loc && supabaseConfigured()) {
     try {
-      const { error } = await supabase().storage.from(loc.bucket).upload(loc.key, bytes, { contentType: "application/pdf", upsert: true });
+      const contentType = loc.key.endsWith(".png") ? "image/png" : loc.key.endsWith(".jpg") || loc.key.endsWith(".jpeg") ? "image/jpeg" : loc.key.endsWith(".pdf") ? "application/pdf" : "application/octet-stream";
+      const { error } = await supabase().storage.from(loc.bucket).upload(loc.key, bytes, { contentType, upsert: true });
       if (error) console.error(`storage mirror failed for ${rel}: ${error.message}`);
     } catch (e) {
       console.error(`storage mirror failed for ${rel}:`, e);

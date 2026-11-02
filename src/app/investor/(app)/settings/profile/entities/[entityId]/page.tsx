@@ -6,6 +6,7 @@ import { requireUser } from "@/lib/auth";
 import { must, supabase } from "@/lib/supabase";
 import { entityMaskedTaxId, formatAddress, getEntity } from "@/lib/queries";
 import EntityDetail, { type EntityView } from "@/components/EntityDetail";
+import { bankAccountsForEntity } from "@/lib/banks";
 
 export const metadata: Metadata = { title: pageTitle("Investing Entity Details") };
 
@@ -22,7 +23,7 @@ export default async function EntityPage({ params }: { params: Promise<{ entityI
     <div className="max-w-[820px] mx-auto">
       <p className="text-sm mb-2"><Link href="/investor/settings/profile">My Profile</Link> › Investing Entity Details</p>
       <h1 className="text-[28px] md:text-[35px] leading-tight font-bold text-[var(--heading)] mb-6">{e.name}</h1>
-      <EntityDetail e={view} />
+      <EntityDetail e={view} banks={await bankAccountsForEntity(e.id)} />
     </div>
   );
 }

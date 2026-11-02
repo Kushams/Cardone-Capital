@@ -4,6 +4,8 @@ import { must, supabase } from "@/lib/supabase";
 import { encryptSecret } from "@/lib/crypto";
 import { requireUser } from "@/lib/auth";
 import { ENTITY_TYPES, PAYMENT_METHODS } from "@/lib/constants";
+import { logActivity } from "@/lib/activity";
+import { notifyStaff } from "@/lib/notify";
 
 export interface OnbState { errors?: Record<string, string>; values?: Record<string, string> }
 const s = (f: FormData, k: string) => String(f.get(k) ?? "").trim();
@@ -51,5 +53,7 @@ export async function onboardingAction(_: OnbState, f: FormData): Promise<OnbSta
     full_name: full, phone, address: [ta.address, ta.city, `${ta.state} ${ta.zip}`].join(", "), onboarding_completed_at: now,
   }).eq("id", u.clientId));
   must(await sb.from("authorized_emails").update({ status: "ACTIVE", activated_at: now }).eq("email", u.email));
+  await logActivity({ actorType: "CLIENT", actorEmail: u.email, clientEmail: u.email, action: "ONBOARDING_COMPLETED", detail: entName });
+  await notifyStaff("Client finished onboarding", `${u.email} completed onboarding with the entity “${entName}” and can now receive commitments.`);
   redirect("/investor/investments");
 }
