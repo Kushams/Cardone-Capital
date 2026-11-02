@@ -10,8 +10,8 @@ const config: NextConfig = {
       { source: "/opportunities/:id/invest", destination: "/investor/opportunities/:id/invest" },
     ];
   },
-  async redirects() {
-    return [{ source: "/", destination: "/investor/investments", permanent: false }];
-  },
+  // NOTE: the "/" redirect lives in src/proxy.ts (session-aware: anonymous -> login,
+  // signed-in -> investments). A static redirect here would run BEFORE the proxy and
+  // force anonymous visitors through a second bounce via /investor/investments.
 };
 export default config;
