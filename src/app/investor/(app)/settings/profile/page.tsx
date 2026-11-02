@@ -8,6 +8,8 @@ import PageTitle from "@/components/PageTitle";
 import ThemeToggle from "@/components/ThemeToggle";
 import ContactInfoCard from "@/components/ContactInfoCard";
 import Collapsible from "@/components/Collapsible";
+import BankAccounts from "@/components/BankAccounts";
+import { listBankAccounts } from "@/lib/banks";
 
 export const metadata: Metadata = { title: pageTitle("My Profile") };
 export const AlertIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden className="inline -mt-0.5"><circle cx="12" cy="12" r="11" fill="#d9534f" /><rect x="11" y="5.500" width="2" height="9" fill="#fff" /><circle cx="12" cy="18" r="1.300" fill="#fff" /></svg>;
@@ -42,10 +44,8 @@ export default async function Profile() {
               </tr>))}</tbody></table></div>
         </Collapsible>
 
-        <Collapsible title="Bank Accounts" action={<button className="btn btn-secondary" title="Stub — Plaid is not connected" data-stub="plaid">Add Bank Account</button>}>
-          <p>You have not added any bank accounts yet.</p>
-          <p className="mt-2"><a href="https://plaid.com/" target="_blank" rel="noreferrer">Learn how to link a bank account using plaid ↗</a></p>
-          <p className="text-xs muted mt-3">STUB: bank linking (Plaid) is not connected in this build.</p>
+        <Collapsible title="Bank Accounts">
+          <BankAccounts accounts={await listBankAccounts(u.clientId)} entities={entities.map((e) => ({ id: e.id, name: e.name }))} />
         </Collapsible>
       </div>
       <footer className="text-center text-sm muted mt-10 pb-6">

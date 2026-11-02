@@ -23,7 +23,14 @@ export async function documentsFor(clientId: number): Promise<{ all: DocRow[]; b
     return { id: "i" + r.id, name: "EXECUTED " + r.document_templates.display_name, href: `/investor/files/instances/${r.id}`, investment: r.commitments.offerings.name, investmentPortalId: r.commitments.offerings.portal_id, entity: r.investing_entities.name, type: "Agreements",
       year: new Date(r.signed_at).getFullYear(), shared: mdyFromISO(sa), sharedISO: sa, dot: false };
   });
-  const all = [...tpls.filter((t) => t.appearsIn.includes("all-documents")).map(toRow), ...instRows].sort((a, b) => b.sharedISO.localeCompare(a.sharedISO));
+  const ups = must(await supabase().from("client_uploads").select("id, original_name, uploaded_at").eq("client_id", clientId)) as any[];
+  const upRows: DocRow[] = ups.map((r) => {
+    const iso = String(r.uploaded_at).slice(0, 10);
+    const ext = String(r.original_name).split(".").pop()?.toUpperCase() ?? "FILE";
+    return { id: "u" + r.id, name: r.original_name, href: `/investor/files/uploads/${r.id}`, investment: "Your uploads", investmentPortalId: 0, entity: null,
+      type: ext === "PDF" ? "PDF" : ["PNG", "JPG", "JPEG"].includes(ext) ? "Image" : "Document", year: new Date(r.uploaded_at).getFullYear(), shared: mdyFromISO(iso), sharedISO: iso, dot: false };
+  });
+  const all = [...tpls.filter((t) => t.appearsIn.includes("all-documents")).map(toRow), ...instRows, ...upRows].sort((a, b) => b.sharedISO.localeCompare(a.sharedISO));
   const byFund = new Map<number, DocRow[]>(); const fundNames = new Map<number, string>();
   for (const pid of [81, 86, 87, 88]) {
     const fundTpls = tpls.filter((t) => t.offeringPortalId === pid && t.appearsIn.some((a) => a.startsWith("by-investment:")));

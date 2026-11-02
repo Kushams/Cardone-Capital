@@ -1,18 +1,25 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import AddressFields from "./AddressFields";
 import { ENTITY_TYPES } from "@/lib/constants";
+import { investAction, type InvestState } from "@/app/investor/(app)/opportunities/[id]/invest/actions";
 
-/** Invest / Submit Interest entry screen (CLONE-PROMPT §16). Submit is a STUB: nothing is saved or sent. */
-export default function InvestForm({ offeringId, offeringName, minimum, prefill, entities, cancelHref }:
-  { offeringId: number; offeringName: string; minimum: string; prefill?: number; entities: { id: number; name: string }[]; cancelHref: string }) {
+const init: InvestState = {};
+
+/** Invest / Submit Interest entry screen (CLONE-PROMPT §16). Real submit: saves the
+ * commitment and generates the client's signature documents (see invest/actions.ts). */
+export default function InvestForm({ offeringId, offeringName, minimum, prefill, entities, cancelHref, prospectId }:
+  { offeringId: number; offeringName: string; minimum: string; prefill?: number; entities: { id: number; name: string }[]; cancelHref: string; prospectId?: string }) {
   const [as, setAs] = useState(entities[0] ? String(entities[0].id) : "new");
-  const [done, setDone] = useState(false);
+  const [state, dispatch, pending] = useActionState(investAction.bind(null, offeringId, prospectId ?? null), init);
   return (
-    <form onSubmit={(e) => { e.preventDefault(); setDone(true); window.scrollTo({ top: 0 }); }} className="max-w-[820px]">
-      {done && <div role="status" className="card p-4 mb-5 border-l-4" style={{ borderLeftColor: "#fcc43e" }}>
-        <b>STUB — nothing was submitted.</b> The subscription flow is not connected in this build; no entity, commitment, payment or document was created.</div>}
+    <form action={dispatch} className="max-w-[820px]">
+      {state.done && <div role="status" className="card p-4 mb-5 border-l-4" style={{ borderLeftColor: "#3c8627" }}>
+        <b>Submitted.</b> Your commitment for {offeringName} has been saved and your subscription documents have been generated.
+        They are waiting for your signature under <Link href="/investor/documents/signatures" className="underline font-bold">Documents → Signatures</Link>.</div>}
+      {state.error && <div role="alert" className="card p-4 mb-5 border-l-4" style={{ borderLeftColor: "#b91c1c" }}>
+        <b>Not submitted.</b> {state.error}</div>}
       <section className="card p-6 space-y-5">
         <label className="block"><span className="label !text-[var(--text)] font-bold">Desired Commitment</span>
           <input name="commitment" inputMode="numeric" defaultValue={prefill ? `$${prefill.toLocaleString("en-US")}` : ""} className="input max-w-[280px]" />
@@ -40,7 +47,7 @@ export default function InvestForm({ offeringId, offeringName, minimum, prefill,
         <div><h3 className="font-bold mb-2">Entity Owner&apos;s Personal Information</h3>
           <label className="block"><span className="label">Phone</span><input name="phone" type="tel" className="input max-w-[320px]" /></label></div>
         <div className="flex items-center gap-5 pt-2">
-          <button type="submit" className="btn btn-primary px-8">Submit</button>
+          <button type="submit" disabled={pending} className="btn btn-primary px-8">{pending ? "Submitting…" : "Submit"}</button>
           <Link href={cancelHref}>Cancel</Link>
         </div>
       </section>

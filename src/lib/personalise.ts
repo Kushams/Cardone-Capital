@@ -112,19 +112,26 @@ export async function regeneratePendingForEntity(d: PortalDb, entityId: number) 
 }
 
 /** STUB e-signature: stamps a typed-name signature block on a COPY of the generated PDF and stores it as the client's executed copy. */
-export async function executeInstance(d: PortalDb, instanceId: number, signerName: string): Promise<string> {
+export async function executeInstance(d: PortalDb, instanceId: number, signerName: string, sig?: { png: Uint8Array; sha256: string }): Promise<string> {
   const r = await loadInstance(d, instanceId);
   let src = await d.generatedFilePath(instanceId);
   if (!src) src = await generateInstance(d, instanceId);
   const pdf = await PDFDocument.load(await readPortalFile(src));
   const page = pdf.getPages().at(-1)!; // Summary page
-  const H = await pdf.embedFont(StandardFonts.Helvetica), HB = await pdf.embedFont(StandardFonts.HelveticaBold);
+  const H = await pdf.embedFont(StandardFonts.Helvetica);
   const when = new Date().toISOString().replace("T", " ").slice(0, 16) + " UTC";
   page.drawText("Signature", { x: 36, y: 792 - 520, size: 7.5, font: H });
-  page.drawText(safe(signerName), { x: 36, y: 792 - 542, size: 20, font: await pdf.embedFont(StandardFonts.TimesRomanItalic) });
+  if (sig) {
+    // The investor's own drawn signature, embedded as captured on the signing page.
+    const img = await pdf.embedPng(sig.png);
+    const scale = Math.min(250 / img.width, 26 / img.height);
+    page.drawImage(img, { x: 36, y: 792 - 548 + 3, width: img.width * scale, height: img.height * scale });
+  } else {
+    page.drawText(safe(signerName), { x: 36, y: 792 - 542, size: 20, font: await pdf.embedFont(StandardFonts.TimesRomanItalic) });
+  }
   page.drawLine({ start: { x: 36, y: 792 - 548 }, end: { x: 330, y: 792 - 548 }, thickness: 0.6 });
-  page.drawText(`Signed electronically on ${when}`, { x: 36, y: 792 - 562, size: 8, font: H });
-  page.drawText("DEMO / STUB SIGNATURE — typed-name capture only; not a legally executed signature.", { x: 36, y: 792 - 575, size: 7, font: HB, color: rgb(0.7, 0.1, 0.1) });
+  page.drawText(`Signed electronically on ${when} by ${safe(signerName)}`, { x: 36, y: 792 - 562, size: 8, font: H });
+  if (sig) page.drawText(`Signature ID ${sig.sha256.slice(0, 16)} - signature image and signing record retained by the firm.`, { x: 36, y: 792 - 575, size: 7, font: H, color: rgb(0.35, 0.35, 0.35) });
   const rel = path.join("storage", "executed", String(r.cid), `${instanceId}.pdf`);
   await writePortalFile(rel, await pdf.save());
   await d.markExecuted(instanceId, rel);
