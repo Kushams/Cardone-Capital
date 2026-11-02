@@ -8,7 +8,7 @@ export default function AuthCard({ title, children }: { title: string; children:
         <h1 className="text-[21px] font-light text-center mt-9">{title}</h1>
         {children}
       </div>
-      <footer className="mt-8 text-center text-[15px] leading-7"><div>{FIRM.name}</div><div>{FIRM.phone}</div><div>{FIRM.email}</div></footer>
+      <footer className="mt-8 text-center text-[15px] leading-7"><div>{FIRM.name}</div><div>{FIRM.phone}</div><div>{FIRM.phone2}</div><div>{FIRM.email}</div></footer>
     </div>
   );
 }

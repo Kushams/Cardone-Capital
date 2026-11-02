@@ -12,7 +12,7 @@ import SortableTable, { type Row } from "@/components/SortableTable";
 import { RecentCard } from "@/components/OfferingBits";
 
 export const metadata: Metadata = { title: pageTitle("Dashboard") };
-const REFER = "mailto:?subject=Cardone%20Capital&body=" + encodeURIComponent("Take a look at Cardone Capital: https://cardonecapital.com/\n\nQuestions? Contact the team at +1 305 407 0276 or invest@cardonecapital.com.");
+const REFER = "mailto:?subject=Cardone%20Capital&body=" + encodeURIComponent("Take a look at Cardone Capital: https://cardonecapital.com/\n\nQuestions? Contact the team at +1 302 627 3325 or +1 650 454 0345, or email invest@cardonecapitalportal.us.");
 
 export default async function Dashboard() {
   const u = await requireUser("/investor/investments");

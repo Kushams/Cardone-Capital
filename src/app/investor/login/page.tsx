@@ -23,7 +23,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         </div>
       </main>
       <footer className="text-center text-[15px] leading-7 pb-12 sm:pb-10 pt-4">
-        <div>{FIRM.name}</div><div>{FIRM.phone}</div><div>{FIRM.email}</div>
+        <div>{FIRM.name}</div><div>{FIRM.phone}</div><div>{FIRM.phone2}</div><div>{FIRM.email}</div>
       </footer>
     </div>
   );

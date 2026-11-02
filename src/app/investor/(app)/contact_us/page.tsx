@@ -12,6 +12,7 @@ export default function ContactUs() {
       <section className="card p-6 space-y-2">
         <p className="font-bold text-lg">Cardone Capital</p>
         <p><a href={`tel:${FIRM.phone.replace(/\s/g, "")}`}>{FIRM.phone}</a></p>
+        <p><a href={`tel:${FIRM.phone2.replace(/\s/g, "")}`}>{FIRM.phone2}</a></p>
         <p><a href={`mailto:${FIRM.email}`}>{FIRM.email}</a></p>
         <p><a href={FIRM.site} target="_blank" rel="noreferrer">{FIRM.site}</a></p>
         <hr className="hair border-t my-4" />
