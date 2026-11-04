@@ -2,6 +2,19 @@ import type { NextConfig } from "next";
 
 const config: NextConfig = {
   devIndicators: false,
+  experimental: {
+    serverActions: {
+      // The portal is served behind the cardone-domain-proxy relay Worker, so
+      // browsers post actions from the public domain while the app Worker sees
+      // its own workers.dev host. Without these entries Next rejects every
+      // relayed Server Action ("Invalid Server Actions request").
+      allowedOrigins: [
+        "investors.cardonecapitalportal.us",
+        "investor.cardonecapitalportal.us",
+        "cardone-domain-proxy.worldbridgemeridian.workers.dev",
+      ],
+    },
+  },
   // Document URLs used by the original portal live outside /investor; keep both working.
   async rewrites() {
     return [
