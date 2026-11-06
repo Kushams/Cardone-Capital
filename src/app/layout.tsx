@@ -3,7 +3,11 @@ import "./globals.css";
 import { getCurrentUser } from "@/lib/auth";
 import { pageTitle } from "@/lib/nav";
 
-export const metadata: Metadata = { title: pageTitle("Investor Portal").replace("Investor Portal | ", "") };
+export const metadata: Metadata = {
+  title: pageTitle("Investor Portal").replace("Investor Portal | ", ""),
+  // Private portal: keep every page out of search indexes (audit follow-up item 3).
+  robots: { index: false, follow: false },
+};
 export const dynamic = "force-dynamic";
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

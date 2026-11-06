@@ -2,6 +2,28 @@ import type { NextConfig } from "next";
 
 const config: NextConfig = {
   devIndicators: false,
+  poweredByHeader: false,
+  // Security + privacy headers on every response (audit follow-up items 2-3).
+  // This is a private, login-only investor portal: it must never be indexed,
+  // framed, or sniffed. The CSP is deliberately conservative: the app is
+  // same-origin, Next inlines its bootstrap scripts and the portal uses inline
+  // styles throughout (hence 'unsafe-inline' for script/style), and the only
+  // framed third-party content is the Google Maps embed on offering pages.
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          { key: "Content-Security-Policy", value: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; frame-src https://www.google.com; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+        ],
+      },
+    ];
+  },
   experimental: {
     serverActions: {
       // The portal is served behind the cardone-domain-proxy relay Worker, so
