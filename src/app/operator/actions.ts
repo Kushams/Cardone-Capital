@@ -27,7 +27,8 @@ const SESSION_COOKIE = "cc_op_session";
 export async function currentOperator(): Promise<{ kind: "account"; operator: OperatorRow } | { kind: "passphrase" } | null> {
   const op = await operatorBySession((await cookies()).get(SESSION_COOKIE)?.value);
   if (op) return { kind: "account", operator: op };
-  if ((await cookies()).get(COOKIE)?.value === sha256("op:" + key())) return { kind: "passphrase" };
+  const k = key();
+  if (k && (await cookies()).get(COOKIE)?.value === sha256("op:" + k)) return { kind: "passphrase" };
   return null;
 }
 export async function isOperator() { return (await currentOperator()) !== null; }
@@ -35,15 +36,18 @@ async function guard() { if (!(await isOperator())) redirect("/operator"); }
 async function actorName() { const c = await currentOperator(); return c?.kind === "account" ? c.operator.email : "operator (passphrase)"; }
 
 export async function operatorLogin(_: { error?: string }, f: FormData) {
+  const k = key();
+  // Fail closed (audit follow-up item 4): no configured secret, no passphrase login.
+  if (!k) return { error: "The operator console is not configured: the OPERATOR_KEY secret is missing or set to the old public dev value. Set it and redeploy." };
   const rlKey = `operator-ip:${await clientIp()}`;
   const lock = await checkLock(rlKey);
   if (lock.locked) return { error: lockMessage(lock.retryMinutes) };
-  if (String(f.get("key") ?? "") !== key()) {
+  if (String(f.get("key") ?? "") !== k) {
     if (await recordFailure(rlKey)) await logActivity({ actorType: "SYSTEM", action: "LOGIN_LOCKED", detail: "operator passphrase" });
     return { error: "Incorrect passphrase." };
   }
   await recordSuccess(rlKey);
-  (await cookies()).set(COOKIE, sha256("op:" + key()), { httpOnly: true, sameSite: "strict", path: "/operator", maxAge: 8 * 3600, secure: process.env.NODE_ENV === "production" });
+  (await cookies()).set(COOKIE, sha256("op:" + k), { httpOnly: true, sameSite: "strict", path: "/operator", maxAge: 8 * 3600, secure: process.env.NODE_ENV === "production" });
   await logActivity({ actorType: "OPERATOR", actorEmail: "operator (passphrase)", action: "OPERATOR_LOGIN", detail: "via recovery passphrase" });
   redirect("/operator");
 }

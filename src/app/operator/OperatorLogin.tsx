@@ -2,7 +2,7 @@
 import { useActionState } from "react";
 import { operatorAccountLogin, operatorLogin } from "./actions";
 
-export default function OperatorLogin({ hint }: { hint: boolean }) {
+export default function OperatorLogin() {
   const [s, accountAction] = useActionState(operatorAccountLogin, {} as { error?: string });
   const [p, passAction] = useActionState(operatorLogin, {} as { error?: string });
   return (<div className="max-w-[360px] mx-auto mt-20 space-y-10 text-[#212529]">
@@ -19,7 +19,6 @@ export default function OperatorLogin({ hint }: { hint: boolean }) {
       <h2 className="text-base font-bold">Recovery passphrase</h2>
       <input name="key" type="password" placeholder="Passphrase" className="input !bg-white !text-[#212529]" />
       {p.error && <p role="alert" className="text-danger text-sm">{p.error}</p>}
-      {hint && <p className="text-xs text-[#6c757d]">Dev default passphrase: operator-dev-key</p>}
       <button className="btn btn-secondary">Unlock with passphrase</button>
     </form>
   </div>);

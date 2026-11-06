@@ -11,9 +11,12 @@ export const metadata: Metadata = { title: "Operator console | Cardone Capital" 
 
 export default async function Operator({ searchParams }: { searchParams: Promise<{ ok?: string; err?: string; pwset?: string }> }) {
   const sp = await searchParams;
-  const banner = <div className="bg-[#fff3cd] border-b border-[#ffe69c] text-[#664d03] px-4 py-2 text-sm"><b>OPERATOR CONSOLE.</b> Not part of the client-facing portal.{operatorKeyIsDefault() && <b> Using the default dev passphrase — set OPERATOR_KEY.</b>}</div>;
+  const banner = <div className="bg-[#fff3cd] border-b border-[#ffe69c] text-[#664d03] px-4 py-2 text-sm"><b>OPERATOR CONSOLE.</b> Not part of the client-facing portal.</div>;
+  // Fail closed (audit follow-up item 4): no console at all — not even the
+  // login form — until OPERATOR_KEY is set to a real secret value.
+  if (operatorKeyIsDefault()) return <div>{banner}<div className="max-w-[560px] mx-auto mt-20 p-6 rounded border border-[#f1aeb5] bg-[#f8d7da] text-[#842029]"><h1 className="text-xl font-bold mb-2">Operator console disabled</h1><p className="text-sm">This console refuses to run because the <b>OPERATOR_KEY</b> secret is missing or still set to the old public dev value. Set OPERATOR_KEY to a strong secret in the deployment environment and redeploy, then reload this page.</p></div></div>;
   const me = await currentOperator();
-  if (!me) return <div>{banner}{sp.pwset && <p role="status" className="max-w-[360px] mx-auto mt-6 p-3 rounded bg-[#d1e7dd]">Password set. Sign in with your email and password.</p>}<OperatorLogin hint={operatorKeyIsDefault()} /></div>;
+  if (!me) return <div>{banner}{sp.pwset && <p role="status" className="max-w-[360px] mx-auto mt-6 p-3 rounded bg-[#d1e7dd]">Password set. Sign in with your email and password.</p>}<OperatorLogin /></div>;
   const operators = await listOperators();
   const canManage = me.kind === "passphrase" || me.operator.role === "SUPERADMIN";
   const activity = await listActivity(100);
