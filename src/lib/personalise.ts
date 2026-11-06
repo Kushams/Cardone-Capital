@@ -111,7 +111,7 @@ export async function regeneratePendingForEntity(d: PortalDb, entityId: number) 
   return rows.length;
 }
 
-/** STUB e-signature: stamps a typed-name signature block on a COPY of the generated PDF and stores it as the client's executed copy. */
+/** E-signature execution: stamps the signing block on a COPY of the generated PDF and stores it as the client's executed copy. When the investor drew their signature on the signing page, the captured signature image is embedded with its Signature ID; the typed-name rendering remains only as a fallback for records created before draw-to-sign shipped. */
 export async function executeInstance(d: PortalDb, instanceId: number, signerName: string, sig?: { png: Uint8Array; sha256: string }): Promise<string> {
   const r = await loadInstance(d, instanceId);
   let src = await d.generatedFilePath(instanceId);

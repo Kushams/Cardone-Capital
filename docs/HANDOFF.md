@@ -1,5 +1,19 @@
 # HANDOFF — read this first
 
+STATUS UPDATE (2026-11-06, audit follow-up item 23): the migration described below is DONE. The portal is LIVE at
+https://investors.cardonecapitalportal.us (alias https://investor.cardonecapitalportal.us) on Cloudflare Workers (OpenNext),
+with the Supabase project "Cardone-Capital" (Postgres + private Storage buckets) as the data layer and custom
+allowlist/session auth retained. Email is REAL via Resend from invest@cardonecapitalportal.us (sends are also logged to
+the `outbox` table); Zoho Mail hosts the domain's inboxes. Replaced stubs: Invest form (real commitments + generated
+documents), e-signature (in-house draw-to-sign with audit trail stamped into the executed PDF), Upload Document,
+Download All, bank accounts (secure manual entry, encrypted + masked; Plaid auto-linking still pending the firm's
+Plaid account), operator console (named staff accounts with roles, invite/set-password by email, expanded activity
+log), login rate limiting. Still open: payments / "I sent my capital" (no payment rail; the Bitcoin plan in
+docs/BITCOIN-INTEGRATION-PLAN.md is plan-only, gated on the plan's section-5 decisions and fund counsel), the firm's
+final electronic-consent wording (a clearly banner-marked DRAFT is live in
+src/app/investor/(app)/documents/signatures/[id]/page.tsx), hero images and gallery photos (content), and
+Cloudflare Access in front of /operator (dashboard enablement step). The original handoff text follows for history.
+
 Status: the front end and all flows of the Cardone Capital investor-portal clone are BUILT and tested locally. What remains is turning the local
 prototype into a live deployment (Supabase backend + Cloudflare hosting), replacing stubs, and supplying content. Spec = `docs/CLONE-PROMPT.md` (§1–19, binding).
 Read `README.md` for run instructions, tests, stubs and the numbered "Decisions & deviations" list. NOTE: this Next.js version has breaking changes — read
