@@ -78,7 +78,7 @@ export default async function OfferingDetail({ params }: { params: Promise<{ id:
                       <td><a href="#send-funds" title="Stub — payments are not connected" data-stub="payment">I sent my capital</a></td></tr>
                   </tbody>
                 </table>
-                <p className="text-xs muted mt-2">STUB: Edit / “I sent my capital” are placeholders; no payment or funds-transfer integration exists in this build.</p>
+                <p className="text-xs muted mt-2">Note: “I sent my capital” is a placeholder — no payment or funds-transfer integration exists in this build yet. Fund by wire using the Wire Instructions document, and the firm confirms receipt.</p>
               </Card>
             </>
           ) : (
