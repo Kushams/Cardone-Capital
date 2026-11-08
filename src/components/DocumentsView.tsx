@@ -14,7 +14,7 @@ const Dot = ({ on }: { on: boolean }) => (on ? <span aria-hidden className="inli
 const nameCell = (d: DocRow) => (
   <div>
     <a href={d.href} target="_blank" rel="noreferrer" className="break-words">{d.name}</a>
-    <div className="md:hidden text-[15px] mt-0.5">{d.investment}</div>
+    <div className="md:hidden text-[13px] mt-0.5">{d.investment}</div>
   </div>
 );
 const toRow = (d: DocRow, withEntity: boolean): Row => ({
@@ -80,7 +80,7 @@ export default function DocumentsView({ initialTab, all, funds, sigs, entities, 
   const filtered = useMemo(() => all.filter((d) => (inv === "All" || d.investment === inv) && (ent === "All" || d.entity === null || d.entity === ent) && (yr === "All" || String(d.year) === yr)), [all, inv, ent, yr]);
   const tabBtn = (t: Tab, label: string, badge?: number) => (
     <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)}
-      className={`relative pb-2 px-2 md:px-3 text-[17px] md:text-[20px] cursor-pointer flex items-center gap-1.5 md:gap-2 ${tab === t ? "font-bold" : ""}`}>
+      className={`relative pb-2 px-2 md:px-3 text-[15px] md:text-[18px] cursor-pointer flex items-center gap-1.5 md:gap-2 ${tab === t ? "font-bold" : ""}`}>
       {label}{badge ? <span className="badge-yellow">{badge}</span> : null}
       {tab === t && <span className="absolute left-2 right-2 -bottom-[1px] h-[4px] bg-tab" />}
     </button>
@@ -88,20 +88,20 @@ export default function DocumentsView({ initialTab, all, funds, sigs, entities, 
   return (
     <div className="max-w-[1180px]">
       <div className="flex items-start justify-between gap-4 mb-6">
-        <h1 className="text-[34px] md:text-[40px] leading-tight font-bold text-[var(--heading)]">Documents</h1>
+        <h1 className="text-[30px] md:text-[35px] leading-tight font-bold text-[var(--heading)]">Documents</h1>
         <button onClick={() => setUpload(true)} className="btn btn-outline !py-2 shrink-0">Upload Document</button>
       </div>
       {note && <p role="status" className="card p-3 mb-4 text-sm">{note}</p>}
       <div role="tablist" aria-label="View by" className="flex items-end gap-1 mb-5">
-        <span className="muted pb-2 pr-1 md:pr-3 text-[16px] md:text-[18px] whitespace-nowrap">View by:</span>
+        <span className="muted pb-2 pr-1 md:pr-3 text-[14px] md:text-[16px] whitespace-nowrap">View by:</span>
         {tabBtn("all", "All")}{tabBtn("investment", "Investment")}{tabBtn("signatures", "Signatures", sigs.length)}
       </div>
 
       {tab === "all" && (
         <section className="card p-5 md:p-6">
           <div className="flex items-center justify-between gap-3 mb-5">
-            <h2 className="text-[24px] md:text-[28px] font-bold">All Documents</h2>
-            <button className="btn btn-secondary" onClick={() => setNote("STUB: “Download All” is not connected in this build — no archive is generated.")}>Download All</button>
+            <h2 className="text-[21px] md:text-[24px] font-bold">All Documents</h2>
+            <a className="btn btn-secondary" href="/investor/files/download-all">Download All</a>
           </div>
           <div className="grid gap-4 md:flex md:gap-6 mb-4">
             <Filter label="Investment" value={inv} onChange={setInv} options={funds.map((f) => f.name)} />
@@ -124,7 +124,7 @@ export default function DocumentsView({ initialTab, all, funds, sigs, entities, 
       )}
 
       {tab === "signatures" && <Pending sigs={sigs} />}
-      {upload && <UploadModal onClose={() => setUpload(false)} onStub={(m) => { setUpload(false); setNote(m); }} />}
+      {upload && <UploadModal onClose={() => setUpload(false)} onDone={(m) => { setUpload(false); setNote(m); }} />}
     </div>
   );
 }

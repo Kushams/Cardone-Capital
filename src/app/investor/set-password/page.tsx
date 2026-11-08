@@ -7,7 +7,7 @@ import { pageTitle } from "@/lib/nav";
 export const metadata: Metadata = { title: pageTitle("Set Password") };
 export default async function Page({ searchParams }: { searchParams: Promise<{ token?: string }> }) {
   const { token } = await searchParams;
-  const info = lookupToken(token);
+  const info = await lookupToken(token);
   return (
     <AuthCard title={info?.purpose === "RESET" ? "Reset your password" : "Create your password"}>
       {info ? <SetPwForm token={token!} purpose={info.purpose} /> : (

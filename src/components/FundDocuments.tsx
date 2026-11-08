@@ -13,12 +13,12 @@ export default function FundDocuments({ rows, entities, years }: { rows: DocRow[
   );
   return (
     <section className="card p-5 md:p-6">
-      <h2 className="text-[24px] md:text-[28px] font-bold mb-5">All Documents</h2>
+      <h2 className="text-[21px] md:text-[24px] font-bold mb-5">All Documents</h2>
       <div className="grid gap-4 md:flex md:gap-6 mb-4">{sel("Investing Entity", ent, setEnt, entities)}{sel("Year", yr, setYr, years.map(String))}</div>
       <SortableTable columns={FUND_COLS} defaultSort={{ key: "shared", dir: "desc" }} empty="No documents match the selected filters." testId="fund-docs"
         rows={filtered.map((d) => ({ id: d.id,
           cells: { dot: d.dot ? <span aria-hidden className="inline-block w-2.5 h-2.5 rounded-full bg-brand" /> : null,
-            name: <div><a href={d.href} target="_blank" rel="noreferrer" className="break-words">{d.name}</a><div className="md:hidden text-[15px] mt-0.5">{d.investment}</div></div>,
+            name: <div><a href={d.href} target="_blank" rel="noreferrer" className="break-words">{d.name}</a><div className="md:hidden text-[13px] mt-0.5">{d.investment}</div></div>,
             entity: d.entity ?? "--", asset: "--", type: d.type, year: d.year ?? "--", shared: d.shared },
           sort: { name: d.name.toLowerCase(), entity: d.entity ?? "", asset: "", type: d.type, year: d.year ?? 0, shared: d.sharedISO } }))} />
     </section>

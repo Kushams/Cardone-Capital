@@ -14,3 +14,8 @@ signatures-pending/
 **/signatures-pending/**
 screenshots/work
 backup/
+
+# Generated at build time by scripts/sync-public-images.mjs (source of truth: images/)
+/public/images/
+storage/signatures/*
+storage/uploads/*

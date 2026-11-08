@@ -3,7 +3,7 @@
 import { execFileSync } from "node:child_process";
 import { mkdirSync, rmSync, writeFileSync, existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { openDb } from "../src/lib/db";
+import { openDb, sqlitePortalDb } from "./sqlite-db";
 import { encryptSecret } from "../src/lib/crypto";
 import { buildInstancePdf } from "../src/lib/personalise";
 import { createSignatureDocuments } from "../src/lib/instances";
@@ -14,6 +14,7 @@ const tmp = path.join(process.cwd(), "storage", "db", "test-personalisation.sqli
 for (const e of ["", "-wal", "-shm"]) if (existsSync(tmp + e)) rmSync(tmp + e);
 const seedDb = openDb(path.join(process.cwd(), "storage/db/portal.sqlite"));
 const db = openDb(tmp);
+const pdb = sqlitePortalDb(db);
 // copy offerings + templates only (no client data) into the scratch DB
 for (const t of ["offerings", "document_templates"]) {
   const rows = seedDb.prepare(`SELECT * FROM ${t}`).all() as any[]; if (!rows.length) continue;
@@ -36,8 +37,8 @@ async function main() {
     const eid = Number(db.prepare("INSERT INTO investing_entities (client_id, name, entity_type, holding_title, tax_address, tax_id_encrypted, k1_name) VALUES (?,?,?,?,?,?,?)")
       .run(cid, p.n, "Limited Liability Company", "Company Ownership", JSON.stringify(p.addr), encryptSecret(p.tid), p.n).lastInsertRowid);
     const com = Number(db.prepare("INSERT INTO commitments (investing_entity_id, offering_id, desired_commitment) VALUES (?,?,?)").run(eid, 81, p.amt).lastInsertRowid);
-    for (const inst of createSignatureDocuments(db, com)) {
-      const { bytes, fileName } = await buildInstancePdf(db, inst);
+    for (const inst of await createSignatureDocuments(pdb, com)) {
+      const { bytes, fileName } = await buildInstancePdf(pdb, inst);
       const f = path.join(out, `${i}-${inst}.pdf`); writeFileSync(f, bytes);
       const t = db.prepare("SELECT t.doc_type d, t.master_file_path m FROM document_instances di JOIN document_templates t ON t.id = di.template_id WHERE di.id = ?").get(inst) as any;
       const masterPages = pages(path.join(process.cwd(), t.m));

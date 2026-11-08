@@ -7,12 +7,13 @@ import { addContact, removeContact, saveDistribution, updateEntityTax, type Form
 type Addr = Record<string, string>;
 export interface EntityView {
   id: number; name: string; maskedTin: string; entityType: string; disregarded: boolean; taxAddress: Addr | null; taxAddressLine: string;
-  dist: { payment_method: string; payee_name: string; is_custodian_fbo: boolean; payment_address: Addr } | null;
+  dist: { payment_method: string; payee_name: string; is_custodian_fbo: boolean; payment_address: Addr; bank_account_id?: number | null } | null;
   contacts: { id: number; name: string; emails: string[]; phones: string[]; isPrimary: boolean; access: string; signer: boolean }[];
 }
+export interface BankOption { id: number; nickname: string; bankName: string; accountType: string; routingLast4: string; accountLast4: string }
 const Row = ({ l, v }: { l: string; v: React.ReactNode }) => <div><dt className="label">{l}</dt><dd className="mb-4 break-words">{v || "--"}</dd></div>;
 const Err = ({ m }: { m?: string }) => (m ? <span role="alert" className="text-danger text-sm block mt-1">{m}</span> : null);
-const Head = ({ title, right }: { title: string; right?: React.ReactNode }) => <div className="flex items-center justify-between mb-4"><h2 className="text-[22px] md:text-[26px] font-bold">{title}</h2>{right}</div>;
+const Head = ({ title, right }: { title: string; right?: React.ReactNode }) => <div className="flex items-center justify-between mb-4"><h2 className="text-[19px] md:text-[23px] font-bold">{title}</h2>{right}</div>;
 
 function DetailsCard({ e }: { e: EntityView }) {
   const [edit, setEdit] = useState(false); const [note, setNote] = useState(false);
@@ -31,7 +32,7 @@ function DetailsCard({ e }: { e: EntityView }) {
           <label className="block"><span className="label">Tax ID Number</span><input className="input max-w-[300px]" value={e.maskedTin} readOnly /></label>
           <div className="flex flex-wrap items-end gap-6">
             <label className="block"><span className="label">Entity Type</span><input className="input" value={e.entityType} readOnly /></label>
-            <label className="flex items-center gap-2 pb-2"><input type="checkbox" name="disregarded" defaultChecked={e.disregarded} /> Mark as a Disregarded Entity <span title="A disregarded entity is treated as separate from its owner for tax purposes." aria-label="info" className="inline-flex w-4 h-4 rounded-full border text-[11px] items-center justify-center muted">i</span></label>
+            <label className="flex items-center gap-2 pb-2"><input type="checkbox" name="disregarded" defaultChecked={e.disregarded} /> Mark as a Disregarded Entity <span title="A disregarded entity is treated as separate from its owner for tax purposes." aria-label="info" className="inline-flex w-4 h-4 rounded-full border text-[10px] items-center justify-center muted">i</span></label>
           </div>
           <p className="muted text-sm">Tax ID and Entity Type are managed by the firm after the entity is created.</p>
           <div><span className="label">Tax Address</span><AddressFields prefix="tax" v={e.taxAddress ?? {}} /><Err m={state.errors?.tax} /></div>
@@ -42,24 +43,25 @@ function DetailsCard({ e }: { e: EntityView }) {
   );
 }
 
-function DistributionCard({ e }: { e: EntityView }) {
+function DistributionCard({ e, banks }: { e: EntityView; banks: BankOption[] }) {
   const [edit, setEdit] = useState(false);
   const [addrKey, setAddrKey] = useState(0);
   const [pa, setPa] = useState<Addr>(e.dist?.payment_address ?? {});
   const [state, action, pending] = useActionState<FormState, FormData>(async (p, f) => { const r = await saveDistribution(e.id, p, f); if (r.ok) setEdit(false); return r; }, {});
   const d = e.dist; const pay = d?.payment_address;
+  const sel = banks.find((b) => b.id === d?.bank_account_id) ?? null;
   const line = pay ? [pay.address, pay.address2, pay.city, [pay.state, pay.zip].filter(Boolean).join(" ")].filter(Boolean).join(", ") : "";
   return (
     <section className="card p-5 md:p-6" id="distribution">
       <Head title="Distribution Method" right={!edit && <button className="btn btn-secondary" onClick={() => setEdit(true)}>Edit</button>} />
       {!edit ? (
-        <dl>{[["Payment Method", d?.payment_method], ["Bank Account Nickname", ""], ["Bank Name", ""], ["Routing Number", ""], ["Account Number", ""], ["Account Type", ""], ["Payee Name", d?.payee_name], ["Payment Address", line]].map(([l, v]) => <Row key={l} l={l!} v={v} />)}</dl>
+        <dl>{[["Payment Method", d?.payment_method], ["Bank Account Nickname", sel?.nickname], ["Bank Name", sel?.bankName], ["Routing Number", sel ? `••••${sel.routingLast4}` : ""], ["Account Number", sel ? `••••${sel.accountLast4}` : ""], ["Account Type", sel?.accountType], ["Payee Name", d?.payee_name], ["Payment Address", line]].map(([l, v]) => <Row key={l} l={l!} v={v} />)}</dl>
       ) : (
         <form action={action} className="space-y-4">
           <label className="block"><span className={`label ${state.errors?.payment_method ? "!text-danger" : ""}`}>Payment Method *</span>
             <select name="payment_method" defaultValue={d?.payment_method ?? ""} className="input max-w-[320px]"><option value="">Select…</option>{PAYMENT_METHODS.map((m) => <option key={m}>{m}</option>)}</select><Err m={state.errors?.payment_method} /></label>
-          <div><span className="label">Bank Account</span><div className="flex items-center gap-4"><select className="input max-w-[320px]" disabled><option>No bank accounts</option></select>
-            <a href="#plaid" title="Stub — Plaid is not connected" onClick={(ev) => ev.preventDefault()}>Add New Bank Account</a></div></div>
+          <div><span className="label">Bank Account</span><div className="flex items-center gap-4"><select name="bank_account_id" defaultValue={d?.bank_account_id ?? ""} className="input max-w-[320px]"><option value="">No bank account</option>{banks.map((b) => <option key={b.id} value={b.id}>{b.nickname} — {b.bankName} ••••{b.accountLast4}</option>)}</select>
+            <a href="/investor/settings/profile">Manage bank accounts</a></div><Err m={state.errors?.bank_account_id} /></div>
           <label className="flex items-center gap-2"><input type="checkbox" name="custodian" defaultChecked={d?.is_custodian_fbo} /> This is a Custodian/FBO Account</label>
           <label className="block"><span className={`label ${state.errors?.payee_name ? "!text-danger" : ""}`}>Payee Name *</span><input name="payee_name" defaultValue={d?.payee_name ?? ""} className="input" /><Err m={state.errors?.payee_name} /></label>
           <div><div className="flex items-center justify-between"><span className="label">Payment Address</span>
@@ -104,4 +106,4 @@ function ContactsCard({ e }: { e: EntityView }) {
   );
 }
 
-export default function EntityDetail({ e }: { e: EntityView }) { return <div className="space-y-6"><DetailsCard e={e} /><DistributionCard e={e} /><ContactsCard e={e} /></div>; }
+export default function EntityDetail({ e, banks = [] }: { e: EntityView; banks?: BankOption[] }) { return <div className="space-y-6"><DetailsCard e={e} /><DistributionCard e={e} banks={banks} /><ContactsCard e={e} /></div>; }

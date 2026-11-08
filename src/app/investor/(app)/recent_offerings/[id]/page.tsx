@@ -9,7 +9,7 @@ import { mapsUrl, perfRows } from "@/components/OfferingBits";
 import type { Asset } from "@/data/types";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
-  return { title: pageTitle(getOffering("recent", Number((await params).id))?.name ?? "Offering") };
+  return { title: pageTitle((await getOffering("recent", Number((await params).id)))?.name ?? "Offering") };
 }
 
 const fmtN = (n: number) => n.toLocaleString("en-US");
@@ -24,13 +24,16 @@ function facts(a: Asset): [string, string][] {
 
 export default async function RecentOffering({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const o = getOffering("recent", Number(id));
+  const o = await getOffering("recent", Number(id));
   if (!o) notFound();
   await requireUser(`/investor/recent_offerings/${id}`);
   const perf = perfRows(o.performance);
+  const terms = ([["Price Per Share", o.pricePerShare], ["Target Raise", o.targetRaise], ["Minimum Investment", o.minimumInvestment],
+    ["Investment Period", o.investmentPeriod], ["Preferred Return", o.preferredReturn?.replace(".00%", "%")], ["Distribution Schedule", o.distributionSchedule]] as [string, string | undefined][])
+    .filter(([, v]) => v) as [string, string][];
   return (
     <div className="max-w-[1000px]">
-      <h1 className="text-[32px] md:text-[40px] font-bold text-[var(--heading)] mb-6">{o.name}</h1>
+      <h1 className="text-[28px] md:text-[35px] font-bold text-[var(--heading)] mb-6">{o.name}</h1>
       {/* Template: nothing else exists on these pages — no buttons, terms, documents, or footer. Fund 32 is genuinely H1-only. */}
       {o.description && (
         <section className="mb-6"><h4 className="text-xl font-bold mb-2">Investment Description</h4>
@@ -39,6 +42,10 @@ export default async function RecentOffering({ params }: { params: Promise<{ id:
       {perf.length > 0 && (
         <section className="mb-6"><h4 className="text-xl font-bold mb-2">Investment Performance</h4>
           <div className="card p-5"><dl>{perf.map(([l, v]) => <div key={l} className="flex justify-between py-1.5"><dt className="muted">{l}</dt><dd className="font-semibold">{v}</dd></div>)}</dl></div></section>
+      )}
+      {terms.length > 0 && (
+        <section className="mb-6"><h4 className="text-xl font-bold mb-2">Investment Terms</h4>
+          <div className="card p-5"><dl>{terms.map(([l, v]) => <div key={l} className="flex justify-between py-1.5"><dt className="muted">{l}</dt><dd className="font-semibold">{v}</dd></div>)}</dl></div></section>
       )}
       {o.assets && o.assets.length > 0 && (
         <section>

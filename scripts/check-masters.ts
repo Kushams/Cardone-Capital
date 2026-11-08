@@ -7,7 +7,7 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { openDb } from "../src/lib/db";
+import { openDb } from "./sqlite-db";
 import { SAMPLE_INVESTOR_DENYLIST } from "../src/data/seed-data";
 
 const root = process.cwd();
