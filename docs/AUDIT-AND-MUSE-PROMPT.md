@@ -1,3 +1,6 @@
+> **Note (2026-11-08):** This file is a dated record of the 2026-11-06 audit and the prompt given to Muse. It was written as a conversation, so phrases such as "I can fix this" refer to the assistant that wrote it.
+> The authoritative CURRENT state, open items and next steps are in `docs/HANDOFF.md`. If the two differ, HANDOFF.md wins.
+
 # Live-site audit + Muse follow-up prompt (2026-11-06)
 
 Everything below is in the order it was written, starting from the request:
