@@ -64,7 +64,10 @@ What was done and found (facts):
 - Logo: "use the cardone capital logo from the image i uploaded", then the official file `images/logo/cardone-capital-logo.png` replaced it.
 - Standing instruction (2026-11-08): GitHub is the source of truth; keep HANDOFF.md current; commit and push everything; no secrets; write for a reader with no chat context.
 - Step-3 instructions (2026-11-08, binding where not already overtaken): do the remaining work as SEPARATE pull requests; before each PR run `npm run check:masters`, `npm run check:images`, `npm run test:personalisation`, `npm run build`; "send me screenshots of the pages you change"; confirm with the owner before anything that costs money or publishes publicly; the portal needs real email, real e-signature and a real operator admin with 2FA; "I do not have the domain yet; do not assume one" (written before the owner added the domains; the site must still never hard-code a domain, it uses `APP_URL`).
-- STILL UNDECIDED by the owner (do not decide for them): text size 16px vs 14px; domain authorisation question; Bitcoin plan section-5 decisions; the firm's consent wording; whether to merge PRs #3–#6; whether the second contact phone number on the site is intended (section 7).
+- DECIDED by the owner on 2026-11-08, in this session (their words: "Yes is the answer to whether cardonecapitalportal.us is authorized by Cardone ... And yes, Cardone Capital Portal is authorized by Cardone."): the domain `cardonecapitalportal.us` IS authorised by Cardone Capital. The owner states this; no written approval document is stored in this repository, so the owner should keep the written approval on file (do not commit it if it contains anything private).
+- DECIDED by the owner on 2026-11-08 (their words: "Yes, I changed it to 14."): the 14px root text size (commit b56afc4, 12.5% smaller than the original 16px) is INTENDED and stays. Do not revert it and do not treat it as a frozen-identity violation.
+- NOT merged, by the owner's explicit correction (2026-11-08): the owner did not ask for any PR to be merged ("No, I didn't say merge"). PRs #7 and #8 (this handoff) and #3-#6 stay open drafts until the owner says merge. Never infer a merge instruction from a bare "yes".
+- STILL UNDECIDED by the owner (do not decide for them): Bitcoin plan section-5 decisions; the firm's consent wording; whether to merge PRs #3–#6; whether the second contact phone number on the site is intended (section 7).
 
 ## 5. Live-site audit — full results (measured 2026-11-06 from outside; no login was available)
 Hostnames tested: https://investors.cardonecapitalportal.us and https://investor.cardonecapitalportal.us. `APP_URL` (used in invite/reset email links) points at the plural host.
@@ -98,15 +101,15 @@ Hostnames tested: https://investors.cardonecapitalportal.us and https://investor
 **Finished and verified by Claude (on the original SQLite build, 2026-11-01):** every page and flow in sections 1–19 of the spec, the personalisation pipeline, invite-only access, real images and logo. Those test counts are in section 3.
 **Reported by Muse, NOT verified by Claude:** the Supabase port (new access-model suite of 47 checks); real email via Resend; in-house draw-to-sign e-signature with an audit record stamped into the executed PDF (no DEMO/STUB marking); real Invest-form commitments + generated documents; Upload Document; Download All (ZIP); manual encrypted bank-account entry (Plaid auto-linking still pending the firm's Plaid account); operator console with named staff accounts and roles (SUPERADMIN/STAFF) plus a recovery passphrase; activity log; login rate limiting (migration 0007); Investment Terms on recent-offering pages; mobile overflow fix.
 **Changed by Muse and worth the owner's attention:**
-- Typography scaled down 12.5% (root font 16px to 14px) in commit b56afc4: every page looks smaller than the approved design. The spec says visual identity is frozen. The owner has not been asked/has not decided (item 22 of the Muse prompt asks for side-by-side screenshots).
+- Typography scaled down 12.5% (root font 16px to 14px) in commit b56afc4: every page is smaller than the original 16px design. The spec says visual identity is frozen, but the owner confirmed on 2026-11-08 that they made this change on purpose and want 14px kept (section 4). RESOLVED; item 22 of the Muse prompt needs no action.
 - Commit 752d8ba (2026-11-02) changed the firm contact details shown on the site: two phone numbers and the email now `invest@cardonecapitalportal.us` (see that commit for the exact numbers; the original spec used the firm's own published phone `+1 305 407 0276` and `invest@cardonecapital.com`). The second phone number matches a phone number that appears in the personalised sample documents from the original kit (deliberately not repeated here). Owner must confirm these contact details are intended: visitors will call and email them.
 **Still stubs / pending:** payments ("I sent my capital": no payment rail; funding is by wire using the Wire Instructions document, confirmed by the firm); the Bitcoin plan is a plan only (docs/BITCOIN-INTEGRATION-PLAN.md; needs the plan's section-5 decisions and securities counsel; the owner had earlier been told a crypto checkout for investor capital raises compliance questions); the firm's electronic-consent wording (a marked DRAFT is live; Claude must never write legal wording); 4 hero images `images/new-offerings/fund-NN-hero.*` (code auto-uses them when present; card photo is used until then); gallery photos 2…N per property; final fund description copy; working Terms of Service and Privacy Policy links.
-**Broken/blocked:** nothing known to be broken. Blocked on the owner: domain authorisation, text size, consent text, hero/gallery images, Bitcoin decisions, contact-number confirmation. Blocked on Muse: PRs #3–#6 awaiting review/merge; audit items 1, 5 (live proof), 6–15, 17–22, 24, 25 have no evidence in the repo yet.
+**Broken/blocked:** nothing known to be broken. Blocked on the owner: consent text, hero/gallery images, Bitcoin decisions, contact-number confirmation. (Domain authorisation and text size were decided on 2026-11-08, see section 4.) Blocked on Muse: PRs #3–#6 awaiting review/merge; audit items 1, 5 (live proof), 6–15, 17–22, 24, 25 have no evidence in the repo yet.
 
 ## 8. Open items and who each waits on
 | # | Item | Waiting on |
 |---|------|-----------|
-| 1 | Domain authorisation: `cardonecapitalportal.us` is not Cardone Capital's own domain and hosts a pixel-faithful copy of its investor login, with Cardone's name and logo. Without Cardone's written approval this looks like a phishing site and can be taken down/flagged. Safer: host on a subdomain Cardone controls (e.g. investors.cardonecapital.com). Do not change DNS until decided. | Owner |
+| 1 | ~~Domain authorisation~~ RESOLVED 2026-11-08: the owner states `cardonecapitalportal.us` is authorised by Cardone Capital. Remaining housekeeping: keep the written approval on file (it is not in this repo). The domain is not Cardone's own, so a copy of its login on it can still be flagged by browsers/search engines if the approval is ever questioned; a Cardone-controlled subdomain (e.g. investors.cardonecapital.com) remains the safer long-term home, owner's choice. | Owner (housekeeping only) |
 | 2 | Cloudflare "Always Use HTTPS" + HSTS (gap 1) | Owner/Muse (Cloudflare dashboard) |
 | 3 | Review and merge PRs #3 (headers/noindex), #4 (operator fail-closed), #5 (reset rate-limit), #6 (docs); test #3's CSP against the live app first | Owner, then Muse |
 | 4 | Cloudflare Access (+2FA) in front of `/operator` on both hosts; operator-login lockout | Muse/Owner |
@@ -120,7 +123,7 @@ Hostnames tested: https://investors.cardonecapitalportal.us and https://investor
 | 12 | Production isolation test (client A gets 404 for client B's files) and Tax ID masking test, then delete test clients | Muse |
 | 13 | Monitoring: uptime, error tracking, email-failure alerts | Muse |
 | 14 | Re-run check:masters, check:images, test:personalisation, build, Playwright suites against Supabase | Muse |
-| 15 | Text size decision (16px vs 14px) | Owner |
+| 15 | ~~Text size decision (16px vs 14px)~~ RESOLVED 2026-11-08: owner chose 14px; keep it | none |
 | 16 | Confirm the firm contact phone numbers and email on the site are intended (section 7) | Owner |
 | 17 | Firm's electronic-consent wording | Owner (firm/counsel) |
 | 18 | Hero images, gallery photos 2…N, descriptions, Terms/Privacy links | Owner |
@@ -132,16 +135,16 @@ Hostnames tested: https://investors.cardonecapitalportal.us and https://investor
 | 24 | Tell Claude which work to do next, now that steps (a), (b) and most of (c) already exist. Suggested: items 3-7 of this table as small reviewed PRs, then item 21, the throwaway-client test on the live site (needs a test login) | Owner |
 
 ## 9. Exact next steps, in order
-1. Owner decides item 1 (domain authorisation) and item 16 (contact details). Everything public depends on these.
+1. Owner confirms item 16 (the firm contact phone numbers and email shown on the site). Item 1 (domain authorisation) was settled on 2026-11-08.
 2. Owner (or Muse) turns on Always Use HTTPS + HSTS in Cloudflare.
 3. Review PRs #3–#6 (this PR's docs/HANDOFF.md wins over #6's HANDOFF changes). Test #3 on a preview/staging deployment before merging (CSP can break the maps embed, inline scripts, images, Server Actions).
 4. Muse delivers the missing audit evidence (items in section 8: 6–14, 22) as small PRs; Claude re-checks live behaviour with the commands in docs/AUDIT-AND-MUSE-PROMPT.md Part 3.
-5. Owner supplies: consent text, hero images, gallery photos, Terms/Privacy URLs, final descriptions; decides text size.
+5. Owner supplies: consent text, hero images, gallery photos, Terms/Privacy URLs, final descriptions. (Text size is settled: 14px.)
 6. Create a throwaway test client on the live site and run the full flow (invite, set password, onboarding, commitment, documents, sign, executed copy, cross-client 404, Tax ID masking), then delete it.
 7. Counsel review; only then invite real investors. Bitcoin funding only after its decisions and counsel approval.
 
 ## 10. Hard rules (never break)
-- Visual identity is frozen (colours #002C4F sidebar, #3C8627 active, #0175D8 blue, #FCC43E badge; fonts, layout, components) except where the owner explicitly decides the text-size question.
+- Visual identity is frozen (colours #002C4F sidebar, #3C8627 active, #0175D8 blue, #FCC43E badge; fonts, layout, components) and the 14px root text size, which the owner explicitly approved on 2026-11-08 (it is now part of the approved design).
 - No public sign-up anywhere; login only; invite link single-use, 48 hours, client sets own password; tokens stored only as hashes; generic responses for non-allowlisted emails.
 - Tax IDs: AES-256-GCM at rest, masked to the last 4 digits in every screen, never logged/emailed/seeded; the full number is decrypted only while generating a PDF.
 - Never add `documents/signatures-pending/` to any repo, template, seed or deployment. Demo data stays fictional. `npm run check:masters` must keep passing.
