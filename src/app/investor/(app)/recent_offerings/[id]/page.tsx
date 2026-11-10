@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { pageTitle } from "@/lib/nav";
-import { getOffering } from "@/lib/queries";
+import { getEntities, getOffering } from "@/lib/queries";
 import { requireUser } from "@/lib/auth";
+import { documentsFor } from "@/lib/docviews";
+import FundDocuments from "@/components/FundDocuments";
 import Photo from "@/components/Photo";
 import { mapsUrl, perfRows } from "@/components/OfferingBits";
 import type { Asset } from "@/data/types";
@@ -26,7 +28,13 @@ export default async function RecentOffering({ params }: { params: Promise<{ id:
   const { id } = await params;
   const o = await getOffering("recent", Number(id));
   if (!o) notFound();
-  await requireUser(`/investor/recent_offerings/${id}`);
+  const u = await requireUser(`/investor/recent_offerings/${id}`);
+  // Same per-investment documents as the Documents tab (user request, 2026-11-11). Recent offerings
+  // currently carry no shared masters, so this is usually the client's own executed copies, if any.
+  const { all } = await documentsFor(u.clientId);
+  const fundRows = all.filter((d) => d.investmentPortalId === o.portalId);
+  const fundEntities = (await getEntities(u.clientId)).map((e) => e.name);
+  const fundYears = [...new Set(fundRows.map((d) => d.year).filter((y): y is number => !!y))].sort((a, b) => b - a);
   const perf = perfRows(o.performance);
   const terms = ([["Price Per Share", o.pricePerShare], ["Target Raise", o.targetRaise], ["Minimum Investment", o.minimumInvestment],
     ["Investment Period", o.investmentPeriod], ["Preferred Return", o.preferredReturn?.replace(".00%", "%")], ["Distribution Schedule", o.distributionSchedule]] as [string, string | undefined][])
@@ -34,7 +42,8 @@ export default async function RecentOffering({ params }: { params: Promise<{ id:
   return (
     <div className="max-w-[1000px]">
       <h1 className="text-[28px] md:text-[35px] font-bold text-[var(--heading)] mb-6">{o.name}</h1>
-      {/* Template: nothing else exists on these pages — no buttons, terms, documents, or footer. Fund 32 is genuinely H1-only. */}
+      {/* Template: nothing else exists on these pages — no buttons, terms, or footer. Fund 32 is genuinely H1-only.
+          Exception added 2026-11-11 at the user's request: the per-investment documents section below. */}
       {o.description && (
         <section className="mb-6"><h4 className="text-xl font-bold mb-2">Investment Description</h4>
           <div className="card p-5 leading-7">{o.description}</div></section>
@@ -70,6 +79,11 @@ export default async function RecentOffering({ params }: { params: Promise<{ id:
               </article>
             ))}
           </div>
+        </section>
+      )}
+      {fundRows.length > 0 && (
+        <section className="mt-6">
+          <FundDocuments rows={fundRows} entities={fundEntities} years={fundYears} />
         </section>
       )}
     </div>

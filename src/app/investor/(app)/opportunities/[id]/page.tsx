@@ -3,8 +3,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { pageTitle } from "@/lib/nav";
 import { requireUser } from "@/lib/auth";
-import { getClient, getCommitments, getOffering, getPendingSignatures } from "@/lib/queries";
+import { getClient, getCommitments, getEntities, getOffering, getPendingSignatures } from "@/lib/queries";
 import { findTemplateByDisplay, templateHref } from "@/lib/docs";
+import { documentsFor } from "@/lib/docviews";
+import FundDocuments from "@/components/FundDocuments";
 import { fmtUSD } from "@/lib/catalog";
 import { heroFor } from "@/lib/images";
 import Card from "@/components/Card";
@@ -30,6 +32,12 @@ export default async function OfferingDetail({ params }: { params: Promise<{ id:
   const inProgress = !!o.inProgress && !!mine;
   const sig = (await getPendingSignatures(u.clientId)).find((s) => s.offeringPortalId === o.portalId);
   const docs = await Promise.all((o.documentFiles ?? []).map(async (n) => ({ n, t: await findTemplateByDisplay(n) })));
+  // Same per-investment documents as the Documents tab (user request, 2026-11-11): the fund's shared
+  // documents with their Shared dates, plus the client's own executed copies for this fund.
+  const { byFund, all } = await documentsFor(u.clientId);
+  const fundRows = byFund.get(o.portalId) ?? all.filter((d) => d.investmentPortalId === o.portalId);
+  const fundEntities = (await getEntities(u.clientId)).map((e) => e.name);
+  const fundYears = [...new Set(fundRows.map((d) => d.year).filter((y): y is number => !!y))].sort((a, b) => b - a);
   const terms: [string, string | undefined][] = [
     ["Price Per Share", o.pricePerShare], ["Target Raise", o.targetRaise], ["Minimum Investment", o.minimumInvestment],
     ["Investment Period", o.investmentPeriod], ["Preferred Return", o.preferredReturn?.replace(".00%", "%")], ["Distribution Schedule", o.distributionSchedule],
@@ -88,12 +96,6 @@ export default async function OfferingDetail({ params }: { params: Promise<{ id:
             </Card>
           )}
 
-          <Card>
-            <h2 className="text-2xl font-bold">Documents</h2>
-            <ul className="mt-3 space-y-1.5">
-              {docs.map((d) => <li key={d.n}>{d.t ? <a href={templateHref(d.t.id)} target="_blank" rel="noreferrer" className="break-words">{d.n}</a> : <span className="break-words">{d.n}</span>}</li>)}
-            </ul>
-          </Card>
         </div>
 
         {/* right rail on desktop; sits after Documents on mobile (DOM order) */}
@@ -135,6 +137,12 @@ export default async function OfferingDetail({ params }: { params: Promise<{ id:
           )}
         </div>
       </div>
+
+      {fundRows.length > 0 && (
+        <div className="mt-6">
+          <FundDocuments rows={fundRows} entities={fundEntities} years={fundYears} />
+        </div>
+      )}
     </div>
   );
 }
